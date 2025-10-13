@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="Mp54z7" name="Layby" projectType="guiapp" addUsingNamespaceToJuceHeader="0"
+<JUCERPROJECT id="Mp54z7" name="Layby" projectType="audioplug" addUsingNamespaceToJuceHeader="0"
               jucerFormatVersion="1" companyName="MineEric64" companyWebsite="https://github.com/MineEric64"
-              companyEmail="besteric40@gmail.com">
+              companyEmail="besteric40@gmail.com" pluginFormats="buildAU,buildStandalone,buildVST,buildVST3"
+              pluginAUMainType="'aumu'" pluginVST3Category="Instrument,Synth"
+              pluginAAXCategory="0" pluginVSTCategory="kPlugCategSynth" pluginCharacteristicsValue="pluginIsSynth"
+              pluginChannelConfigs="{1, 1}" pluginDesc="YouTube Player" lv2Uri="https://github.com/MineEric64/Layby">
   <MAINGROUP id="TXNu9O" name="Layby">
     <GROUP id="{7A4D0587-40EF-4C4A-F89E-01BF2479AD81}" name="Source">
+      <FILE id="fPsEk5" name="PluginEditor.cpp" compile="1" resource="0"
+            file="Source/PluginEditor.cpp"/>
+      <FILE id="JXBt7s" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="x015o3" name="PluginProcessor.cpp" compile="1" resource="0"
+            file="Source/PluginProcessor.cpp"/>
+      <FILE id="ce6RIw" name="PluginProcessor.h" compile="0" resource="0"
+            file="Source/PluginProcessor.h"/>
       <FILE id="ZmvoJS" name="Player.h" compile="0" resource="0" file="Source/Player.h"/>
       <FILE id="iKHSNt" name="Player.cpp" compile="1" resource="0" file="Source/Player.cpp"/>
-      <FILE id="QSbnmu" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
-      <FILE id="oe7yZE" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
-      <FILE id="FFxTnf" name="MainComponent.cpp" compile="1" resource="0"
-            file="Source/MainComponent.cpp"/>
     </GROUP>
   </MAINGROUP>
   <MODULES>
@@ -18,8 +24,13 @@
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"
+            useGlobalPath="0"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
@@ -47,6 +58,10 @@
         <MODULEPATH id="juce_gui_basics" path="F:/ericseyoun/3D/JUCE/modules"/>
         <MODULEPATH id="juce_video" path="F:/ericseyoun/3D/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="F:/ericseyoun/3D/JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="F:/ericseyoun/3D/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="F:/ericseyoun/3D/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="F:/ericseyoun/3D/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="F:/ericseyoun/3D/JUCE/modules"/>
       </MODULEPATHS>
     </VS2022>
   </EXPORTFORMATS>

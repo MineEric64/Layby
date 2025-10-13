@@ -49,7 +49,12 @@ void Player::initializeCEF() {
     settings.no_sandbox = true;
 
     auto executableDir = juce::File::getSpecialLocation(juce::File::currentExecutableFile).getParentDirectory();
-    CefString(&settings.browser_subprocess_path) = executableDir.getChildFile("subwoofer.exe").getFullPathName().toStdString();
+    auto subwoofer = executableDir.getChildFile("subwoofer.exe");
+
+    if (!subwoofer.exists()) {
+        //ERROR!
+    }
+    CefString(&settings.browser_subprocess_path) = subwoofer.getFullPathName().toStdString();
 
     auto cacheDir = juce::File::getSpecialLocation(juce::File::tempDirectory).getChildFile("LaybyCEFCache");
     cacheDir.createDirectory();
