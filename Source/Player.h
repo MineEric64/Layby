@@ -60,6 +60,9 @@ public:
     void resized() override;
     void paint(juce::Graphics& g) override;
     void timerCallback() override;
+    void mouseMove(const juce::MouseEvent& event) override;
+    void mouseDown(const juce::MouseEvent& event) override;
+    void mouseUp(const juce::MouseEvent& event) override;
 
     int test = 0;
     juce::String url_test;

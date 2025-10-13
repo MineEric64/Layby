@@ -49,7 +49,6 @@ void Player::initializeCEF() {
     settings.no_sandbox = true;
 
     auto executableDir = juce::File::getSpecialLocation(juce::File::currentExecutableFile).getParentDirectory();
-    //CefString(&settings.browser_subprocess_path) = "";
     CefString(&settings.browser_subprocess_path) = executableDir.getChildFile("subwoofer.exe").getFullPathName().toStdString();
 
     auto cacheDir = juce::File::getSpecialLocation(juce::File::tempDirectory).getChildFile("LaybyCEFCache");
@@ -128,4 +127,45 @@ void Player::getViewRect(CefRect& rect) {
 void Player::copyBufferToImage(const void* buffer, juce::Image& imageTo) {
     juce::Image::BitmapData bitmap(imageTo, juce::Image::BitmapData::writeOnly); //BGRA
     memcpy(bitmap.data, buffer, image.getWidth() * image.getHeight() * 4);
+}
+
+void Player::mouseMove(const juce::MouseEvent& event)
+{
+    if (browser) {
+        CefMouseEvent event2;
+        event2.x = event.position.x;
+        event2.y = event.position.y;
+
+        browser->GetHost()->SendMouseMoveEvent(event2, false);
+    }
+}
+
+void Player::mouseDown(const juce::MouseEvent& event) {
+    if (browser) {
+        CefMouseEvent event2;
+        event2.x = event.position.x;
+        event2.y = event.position.y;
+        int type = 0;
+
+        if (event.mods.isLeftButtonDown()) type = 0;
+        else if (event.mods.isMiddleButtonDown()) type = 1;
+        else if (event.mods.isRightButtonDown()) type = 2;
+
+        browser->GetHost()->SendMouseClickEvent(event2, (CefBrowserHost::MouseButtonType)type, false, event.getNumberOfClicks());
+    }
+}
+
+void Player::mouseUp(const juce::MouseEvent& event) {
+    if (browser) {
+        CefMouseEvent event2;
+        event2.x = event.position.x;
+        event2.y = event.position.y;
+        int type = 0;
+
+        if (event.mods.isLeftButtonDown()) type = 0;
+        else if (event.mods.isMiddleButtonDown()) type = 1;
+        else if (event.mods.isRightButtonDown()) type = 2;
+
+        browser->GetHost()->SendMouseClickEvent(event2, (CefBrowserHost::MouseButtonType)type, true, event.getNumberOfClicks());
+    }
 }
