@@ -2,6 +2,8 @@
 Builds/
 JuceLibraryCode/
 
+cef/
+
 # IDE-specific files (adjust as needed for your IDE)
 .idea/
 *.xcodeproj/
