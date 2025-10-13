@@ -3,6 +3,7 @@ Builds/
 JuceLibraryCode/
 
 cef/
+asio/
 
 # IDE-specific files (adjust as needed for your IDE)
 .idea/

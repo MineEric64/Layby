@@ -3,7 +3,7 @@
 <JUCERPROJECT id="Mp54z7" name="Layby" projectType="audioplug" addUsingNamespaceToJuceHeader="0"
               jucerFormatVersion="1" companyName="MineEric64" companyWebsite="https://github.com/MineEric64"
               companyEmail="besteric40@gmail.com" pluginFormats="buildAU,buildStandalone,buildVST,buildVST3"
-              pluginAUMainType="'aumu'" pluginVST3Category="Instrument,Synth"
+              pluginAUMainType="'augn'" pluginVST3Category="Instrument,Synth"
               pluginAAXCategory="0" pluginVSTCategory="kPlugCategSynth" pluginCharacteristicsValue="pluginIsSynth"
               pluginChannelConfigs="{1, 1}" pluginDesc="YouTube Player" lv2Uri="https://github.com/MineEric64/Layby">
   <MAINGROUP id="TXNu9O" name="Layby">
@@ -37,13 +37,13 @@
     <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_video" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
   </MODULES>
-  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_ASIO="1" JUCE_WASAPI="1"/>
   <EXPORTFORMATS>
     <VS2022 targetFolder="Builds/VisualStudio2022">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="layby" headerPath="../../cef"
+        <CONFIGURATION isDebug="1" name="Debug" targetName="layby" headerPath="../../cef&#10;../../asio/common"
                        libraryPath="../../cef/Release" useRuntimeLibDLL="0"/>
-        <CONFIGURATION isDebug="0" name="Release" targetName="layby" headerPath="../../cef"
+        <CONFIGURATION isDebug="0" name="Release" targetName="layby" headerPath="../../cef&#10;../../asio/common"
                        libraryPath="../../cef/Release"/>
       </CONFIGURATIONS>
       <MODULEPATHS>

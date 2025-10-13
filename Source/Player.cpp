@@ -10,11 +10,13 @@
 
 #include "Player.h"
 
-void PlayerRenderHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
+juce::AudioSampleBuffer PlayerHandler::buffer(PlayerHandler::channel, PlayerHandler::samplesPerBlock);
+
+void PlayerHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
     player->getViewRect(rect);
 }
 
-void PlayerRenderHandler::OnPaint(CefRefPtr<CefBrowser> browser,
+void PlayerHandler::OnPaint(CefRefPtr<CefBrowser> browser,
     PaintElementType type,
     const RectList& dirtyRects,
     const void* buffer, int width, int height)
@@ -49,7 +51,7 @@ void Player::initializeCEF() {
     settings.no_sandbox = true;
 
     auto executableDir = juce::File::getSpecialLocation(juce::File::currentExecutableFile).getParentDirectory();
-    auto subwoofer = executableDir.getChildFile("subwoofer.exe");
+    auto subwoofer = executableDir.getChildFile("layby_subwoofer.exe");
 
     if (!subwoofer.exists()) {
         //ERROR!
@@ -62,8 +64,8 @@ void Player::initializeCEF() {
 
     app = new PlayerApp();
     CefInitialize(args, settings, app.get(), nullptr);
-    render_handler = new PlayerRenderHandler(this);
-    client = new PlayerBrowserClient(render_handler);
+    handler = new PlayerHandler(this);
+    client = new PlayerBrowserClient(handler);
 
     CefWindowInfo info;
     info.windowless_rendering_enabled = true;
@@ -173,4 +175,39 @@ void Player::mouseUp(const juce::MouseEvent& event) {
 
         browser->GetHost()->SendMouseClickEvent(event2, (CefBrowserHost::MouseButtonType)type, true, event.getNumberOfClicks());
     }
+}
+
+bool PlayerHandler::GetAudioParameters(CefRefPtr<CefBrowser> browser, CefAudioParameters& params) {
+    auto ret = CefAudioHandler::GetAudioParameters(browser, params);
+    params.sample_rate = sampleRate;
+    params.frames_per_buffer = samplesPerBlock;
+
+    return ret;
+}
+
+void PlayerHandler::OnAudioStreamStarted(CefRefPtr<CefBrowser> browser, const CefAudioParameters& params, int channel) {
+    this->channel = channel;
+
+    if (this->buffer.getNumChannels() != channel || this->buffer.getNumSamples() != params.frames_per_buffer)
+        this->buffer = juce::AudioSampleBuffer(channel, params.frames_per_buffer);
+}
+
+void PlayerHandler::OnAudioStreamPacket(CefRefPtr<CefBrowser> browser, const float** data, int frames, long long pts) {
+    //bit depth: 32
+    for (int i = 0; i < channel; i++) {
+        this->buffer.copyFrom(i, 0, data[i], frames);
+    }
+
+    //TODO: making buffer using algorithm (maybe queue?)
+    //Player Buffer : Accumulated (48khz)
+    //Conversion : Mixer (Sample Rate)
+    //Output Buffer : whatever you want (using conversion)
+}
+
+void PlayerHandler::OnAudioStreamStopped(CefRefPtr<CefBrowser> browser) {
+    this->buffer.clear();
+}
+
+void PlayerHandler::OnAudioStreamError(CefRefPtr<CefBrowser> browser, const CefString& message) {
+
 }
