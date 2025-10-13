@@ -10,16 +10,122 @@
 
 #include "Player.h"
 
-Player::Player() : browser(juce::WebBrowserComponent::Options{}.withBackend(juce::WebBrowserComponent::Options::Backend::webview2)
-    .withWinWebView2Options(juce::WebBrowserComponent::Options::WinWebView2{}
-    .withUserDataFolder(juce::File::getSpecialLocation(juce::File::SpecialLocationType::tempDirectory))))
-{
-    addAndMakeVisible(browser);
+void PlayerRenderHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
+    player->getViewRect(rect);
+}
 
-    //test
-    browser.goToURL("https://www.youtube.com/embed/mFDToQP-Ecs");
+void PlayerRenderHandler::OnPaint(CefRefPtr<CefBrowser> browser,
+    PaintElementType type,
+    const RectList& dirtyRects,
+    const void* buffer, int width, int height)
+{
+    if (type == PET_VIEW) {
+        player->updateImage(buffer, width, height);
+    }
+}
+
+Player::Player() {
+    setSize(800, 600);
+    startTimer(16); //60fps
+}
+
+Player::~Player() {
+    shutdownCEF();
 }
 
 void Player::resized() {
-    browser.setBounds(getLocalBounds());
+    if (browser) {
+        browser->GetHost()->WasResized();
+        browser->GetHost()->Invalidate(PET_VIEW);
+    }
+}
+
+void Player::initializeCEF() {
+    CefMainArgs args;
+    CefSettings settings;
+
+    settings.windowless_rendering_enabled = true;
+    settings.multi_threaded_message_loop = false;
+    settings.no_sandbox = true;
+
+    auto executableDir = juce::File::getSpecialLocation(juce::File::currentExecutableFile).getParentDirectory();
+    //CefString(&settings.browser_subprocess_path) = "";
+    CefString(&settings.browser_subprocess_path) = executableDir.getChildFile("subwoofer.exe").getFullPathName().toStdString();
+
+    auto cacheDir = juce::File::getSpecialLocation(juce::File::tempDirectory).getChildFile("LaybyCEFCache");
+    cacheDir.createDirectory();
+    CefString(&settings.root_cache_path).FromWString(cacheDir.getFullPathName().toWideCharPointer());
+
+    app = new PlayerApp();
+    CefInitialize(args, settings, app.get(), nullptr);
+    render_handler = new PlayerRenderHandler(this);
+    client = new PlayerBrowserClient(render_handler);
+
+    CefWindowInfo info;
+    info.windowless_rendering_enabled = true;
+    info.SetAsWindowless(nullptr);
+
+    CefBrowserSettings settings2;
+    settings2.windowless_frame_rate = 60;
+    settings2.background_color = CefColorSetARGB(255, 255, 255, 255);
+
+    url_test = juce::String("https://www.youtube.com/embed/mFDToQP-Ecs"); //test
+    browser = CefBrowserHost::CreateBrowserSync(info, client, url_test.toStdString(), settings2, nullptr, nullptr);
+
+    resized();
+}
+
+void Player::shutdownCEF() {
+    if (browser) { //if browser is not nullptr
+        browser->GetHost()->CloseBrowser(true);
+        browser = nullptr;
+    }
+}
+
+void Player::loadURL(const juce::String& url) {
+    if (browser) {
+        browser->GetMainFrame()->LoadURL(url.toStdString());
+    }
+}
+
+void Player::paint(juce::Graphics& g)
+{
+    if (image.isValid()) {
+        g.drawImage(image, getLocalBounds().toFloat());
+    }
+    else {
+        g.fillAll(juce::Colours::black);
+        g.setColour(juce::Colours::white);
+        g.drawText("Waiting for CEF...", getLocalBounds(), juce::Justification::centred);
+    }
+}
+
+void Player::timerCallback() {
+    CefDoMessageLoopWork();
+}
+
+void Player::updateImage(const void* buffer, int width, int height) {
+    juce::ScopedLock lock(imageMutex);
+
+    if (image.getWidth() != width || image.getHeight() != height)
+        image = juce::Image(juce::Image::PixelFormat::ARGB, width, height, true);
+
+    if (buffer && image.isValid()) {
+        copyBufferToImage(buffer, image);
+    }
+
+    juce::MessageManager::callAsync([this] { repaint(); });
+}
+
+void Player::getViewRect(CefRect& rect) {
+    auto bounds = getLocalBounds();
+    rect.x = 0;
+    rect.y = 0;
+    rect.width = bounds.getWidth();
+    rect.height = bounds.getHeight();
+}
+
+void Player::copyBufferToImage(const void* buffer, juce::Image& imageTo) {
+    juce::Image::BitmapData bitmap(imageTo, juce::Image::BitmapData::writeOnly); //BGRA
+    memcpy(bitmap.data, buffer, image.getWidth() * image.getHeight() * 4);
 }

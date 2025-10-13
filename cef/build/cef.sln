@@ -1,0 +1,47 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CMakePredefinedTargets", "CMakePredefinedTargets", "{7902E2BF-0CD7-3631-B566-825D8F66B6F5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ALL_BUILD", "ALL_BUILD.vcxproj", "{2DC20713-31E1-32E0-92C7-4F4A8B8DF519}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7105233E-EEA0-37C3-BC5D-0C83DD05AC41} = {7105233E-EEA0-37C3-BC5D-0C83DD05AC41}
+		{3065B6F2-11C3-3185-B293-CE888B5F40A8} = {3065B6F2-11C3-3185-B293-CE888B5F40A8}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZERO_CHECK", "ZERO_CHECK.vcxproj", "{7105233E-EEA0-37C3-BC5D-0C83DD05AC41}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libcef_dll_wrapper", "libcef_dll_wrapper\libcef_dll_wrapper.vcxproj", "{3065B6F2-11C3-3185-B293-CE888B5F40A8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7105233E-EEA0-37C3-BC5D-0C83DD05AC41} = {7105233E-EEA0-37C3-BC5D-0C83DD05AC41}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2DC20713-31E1-32E0-92C7-4F4A8B8DF519}.Debug|x64.ActiveCfg = Debug|x64
+		{2DC20713-31E1-32E0-92C7-4F4A8B8DF519}.Release|x64.ActiveCfg = Release|x64
+		{7105233E-EEA0-37C3-BC5D-0C83DD05AC41}.Debug|x64.ActiveCfg = Debug|x64
+		{7105233E-EEA0-37C3-BC5D-0C83DD05AC41}.Debug|x64.Build.0 = Debug|x64
+		{7105233E-EEA0-37C3-BC5D-0C83DD05AC41}.Release|x64.ActiveCfg = Release|x64
+		{7105233E-EEA0-37C3-BC5D-0C83DD05AC41}.Release|x64.Build.0 = Release|x64
+		{3065B6F2-11C3-3185-B293-CE888B5F40A8}.Debug|x64.ActiveCfg = Debug|x64
+		{3065B6F2-11C3-3185-B293-CE888B5F40A8}.Debug|x64.Build.0 = Debug|x64
+		{3065B6F2-11C3-3185-B293-CE888B5F40A8}.Release|x64.ActiveCfg = Release|x64
+		{3065B6F2-11C3-3185-B293-CE888B5F40A8}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2DC20713-31E1-32E0-92C7-4F4A8B8DF519} = {7902E2BF-0CD7-3631-B566-825D8F66B6F5}
+		{7105233E-EEA0-37C3-BC5D-0C83DD05AC41} = {7902E2BF-0CD7-3631-B566-825D8F66B6F5}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {72D7A016-B45E-3E86-B6EF-F5ED45B87F47}
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

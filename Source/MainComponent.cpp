@@ -3,9 +3,11 @@
 //==============================================================================
 MainComponent::MainComponent()
 {
-    setSize (600, 400);
-
     addAndMakeVisible(player);
+    setSize (800, 600);
+
+    player.initializeCEF();
+    player.loadURL(player.url_test);
 }
 
 MainComponent::~MainComponent()
