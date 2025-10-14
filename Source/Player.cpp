@@ -10,7 +10,7 @@
 
 #include "Player.h"
 
-juce::AudioSampleBuffer PlayerHandler::buffer(PlayerHandler::channel, PlayerHandler::samplesPerBlock);
+AudioSampleBufferV2 PlayerHandler::buffer(PlayerHandler::channel);
 
 void PlayerHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
     player->getViewRect(rect);
@@ -75,7 +75,7 @@ void Player::initializeCEF() {
     settings2.windowless_frame_rate = 60;
     settings2.background_color = CefColorSetARGB(255, 255, 255, 255);
 
-    url_test = juce::String("https://www.youtube.com/embed/mFDToQP-Ecs"); //test
+    url_test = juce::String("https://youtube.com/embed/P-T87k30zZs"); //test
     browser = CefBrowserHost::CreateBrowserSync(info, client, url_test.toStdString(), settings2, nullptr, nullptr);
 
     resized();
@@ -188,15 +188,19 @@ bool PlayerHandler::GetAudioParameters(CefRefPtr<CefBrowser> browser, CefAudioPa
 void PlayerHandler::OnAudioStreamStarted(CefRefPtr<CefBrowser> browser, const CefAudioParameters& params, int channel) {
     this->channel = channel;
 
-    if (this->buffer.getNumChannels() != channel || this->buffer.getNumSamples() != params.frames_per_buffer)
-        this->buffer = juce::AudioSampleBuffer(channel, params.frames_per_buffer);
+    if (this->buffer.channel != channel) {
+        this->buffer.clear();
+        this->buffer = AudioSampleBufferV2(channel);
+    }
 }
 
 void PlayerHandler::OnAudioStreamPacket(CefRefPtr<CefBrowser> browser, const float** data, int frames, long long pts) {
     //bit depth: 32
     for (int i = 0; i < channel; i++) {
-        this->buffer.copyFrom(i, 0, data[i], frames);
+        this->buffer.push(i, data[i], frames);
     }
+
+    //TODO (mixer)
 
     //TODO: making buffer using algorithm (maybe queue?)
     //Player Buffer : Accumulated (48khz)

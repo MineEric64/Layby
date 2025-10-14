@@ -17,7 +17,6 @@ TestAudioProcessorEditor::TestAudioProcessorEditor (TestAudioProcessor& p)
     setSize(800, 600);
 
     player.initializeCEF();
-    player.loadURL(player.url_test);
 }
 
 TestAudioProcessorEditor::~TestAudioProcessorEditor()

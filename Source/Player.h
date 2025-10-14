@@ -11,12 +11,17 @@
 #pragma once
 #pragma comment(lib, "libcef.lib")
 #pragma comment(lib, "libcef_dll_wrapper.lib")
+
 #include <JuceHeader.h>
+#define DEBUG(message, title) juce::NativeMessageBox::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon, title, message)
+
 #include "include/cef_app.h"
 #include "include/cef_browser.h"
 #include "include/cef_client.h"
 #include "include/cef_render_handler.h"
 #include "include/wrapper/cef_helpers.h"
+
+#include "AudioSampleBufferV2.h"
 
 class PlayerHandler : public CefRenderHandler, public CefAudioHandler {
 public:
@@ -35,7 +40,7 @@ public:
     void OnAudioStreamStopped(CefRefPtr<CefBrowser> browser) override;
     void OnAudioStreamError(CefRefPtr<CefBrowser> browser, const CefString& message) override;
 
-    static juce::AudioSampleBuffer buffer;
+    static AudioSampleBufferV2 buffer;
     static inline double sampleRate = 44100.0;
     static inline int samplesPerBlock = 256;
     static inline int channel = 2;

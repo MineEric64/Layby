@@ -135,11 +135,10 @@ void TestAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
 {
     juce::ScopedNoDenormals noDenormals;
 
-    int channels = getNumOutputChannels();
-    int sampleCount = min(PlayerHandler::buffer.getNumSamples(), buffer.getNumSamples());
+    int channel = getNumOutputChannels();
 
-    for (int channel = 0; channel < channels; channel++) {
-        buffer.copyFrom(channel, 0, PlayerHandler::buffer, channel, 0, sampleCount);
+    for (int i = 0; i < channel; i++) {
+        PlayerHandler::buffer.popAndAdd(i, PlayerHandler::samplesPerBlock, buffer);
     }
 }
 
