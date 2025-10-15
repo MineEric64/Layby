@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36518.9 d17.14
+VisualStudioVersion = 17.14.36518.9
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Project1", "Project1\Project1.vcxproj", "{0B6B9DF5-41C1-4EAA-ADA7-FF0DEB73D7AA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Subwoofer", "Project1\Project1.vcxproj", "{0B6B9DF5-41C1-4EAA-ADA7-FF0DEB73D7AA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CefWrapper", "CefWrapper\CefWrapper.vcxproj", "{D4109299-DEBD-494F-8B06-0BF07B3E09CC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,14 @@ Global
 		{0B6B9DF5-41C1-4EAA-ADA7-FF0DEB73D7AA}.Release|x64.Build.0 = Release|x64
 		{0B6B9DF5-41C1-4EAA-ADA7-FF0DEB73D7AA}.Release|x86.ActiveCfg = Release|Win32
 		{0B6B9DF5-41C1-4EAA-ADA7-FF0DEB73D7AA}.Release|x86.Build.0 = Release|Win32
+		{D4109299-DEBD-494F-8B06-0BF07B3E09CC}.Debug|x64.ActiveCfg = Debug|x64
+		{D4109299-DEBD-494F-8B06-0BF07B3E09CC}.Debug|x64.Build.0 = Debug|x64
+		{D4109299-DEBD-494F-8B06-0BF07B3E09CC}.Debug|x86.ActiveCfg = Debug|Win32
+		{D4109299-DEBD-494F-8B06-0BF07B3E09CC}.Debug|x86.Build.0 = Debug|Win32
+		{D4109299-DEBD-494F-8B06-0BF07B3E09CC}.Release|x64.ActiveCfg = Release|x64
+		{D4109299-DEBD-494F-8B06-0BF07B3E09CC}.Release|x64.Build.0 = Release|x64
+		{D4109299-DEBD-494F-8B06-0BF07B3E09CC}.Release|x86.ActiveCfg = Release|Win32
+		{D4109299-DEBD-494F-8B06-0BF07B3E09CC}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

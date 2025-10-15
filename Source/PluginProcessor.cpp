@@ -95,8 +95,8 @@ void TestAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-    PlayerHandler::sampleRate = sampleRate;
-    PlayerHandler::samplesPerBlock = samplesPerBlock;
+    //PlayerHandler::sampleRate = sampleRate;
+    //PlayerHandler::samplesPerBlock = samplesPerBlock;
 }
 
 void TestAudioProcessor::releaseResources()
@@ -138,7 +138,7 @@ void TestAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
     int channel = getNumOutputChannels();
 
     for (int i = 0; i < channel; i++) {
-        PlayerHandler::buffer.popAndAdd(i, PlayerHandler::samplesPerBlock, buffer);
+        //PlayerHandler::buffer.popAndAdd(i, PlayerHandler::samplesPerBlock, buffer);
     }
 }
 
