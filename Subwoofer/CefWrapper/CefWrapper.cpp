@@ -1,5 +1,7 @@
 ﻿#include <queue>
 #include <string>
+#include <vector>
+
 #include "CefWrapper.h"
 
 #pragma comment(lib, "libcef.dll")
@@ -52,6 +54,25 @@ private:
     IMPLEMENT_REFCOUNTING(PlayerApp);
 };
 
+static CefRefPtr<CefApp> app;
+static CefRefPtr<CefBrowser> browser;
+static CefRefPtr<PlayerBrowserClient> client;
+static CefRefPtr<PlayerHandler> handler;
+
+static std::queue<std::vector<float>> q; //vector: channel
+static int qChannels = 2;
+
+static double sampleRate = 44100.0;
+static int samplesPerBlock = 256;
+static int channels = 2;
+
+static int width = 800;
+static int height = 600;
+
+static void* imageBuffer = nullptr;
+static int imageWidth;
+static int imageHeight;
+
 void PlayerHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
     getViewRect(rect);
 }
@@ -63,13 +84,32 @@ void getViewRect(CefRect& rect) {
     rect.height = height;
 }
 
+void qClear() {
+    while (!q.empty()) {
+        auto v = q.front();
+
+        v.clear();
+        q.pop();
+    }
+}
+
 void PlayerHandler::OnPaint(CefRefPtr<CefBrowser> browser,
     PaintElementType type,
     const RectList& dirtyRects,
     const void* buffer, int width, int height)
 {
     if (type == PET_VIEW) {
-        //버퍼 전달
+        if (imageBuffer) {
+            free(imageBuffer);
+            imageBuffer = nullptr;
+        }
+
+        int size = width * height * 4;
+        imageWidth = width;
+        imageHeight = height;
+
+        imageBuffer = malloc(size);
+        memcpy(imageBuffer, buffer, size);
     }
 }
 
@@ -85,47 +125,28 @@ void PlayerHandler::OnAudioStreamStarted(CefRefPtr<CefBrowser> browser, const Ce
     channels = channel;
 
     if (qChannels != channel) {
-        while (!q.empty()) q.pop();
+        qClear();
         qChannels = channel;
     }
 }
 
 void PlayerHandler::OnAudioStreamPacket(CefRefPtr<CefBrowser> browser, const float** data, int frames, long long pts) {
     //bit depth: 32
-    for (int i = 0; i < channels; i++) {
-        this->buffer.push(i, data[i], frames);
+    for (int i = 0; i < frames; i++) {
+        std::vector<float> v;
+            
+        for (int j = 0; j < channels; j++) v.push_back(data[j][i]);
+        q.push(v);
     }
-
-    //TODO (mixer)
-
-    //TODO: making buffer using algorithm (maybe queue?)
-    //Player Buffer : Accumulated (48khz)
-    //Conversion : Mixer (Sample Rate)
-    //Output Buffer : whatever you want (using conversion)
 }
 
 void PlayerHandler::OnAudioStreamStopped(CefRefPtr<CefBrowser> browser) {
-    while (!q.empty()) q.pop();
+    qClear();
 }
 
 void PlayerHandler::OnAudioStreamError(CefRefPtr<CefBrowser> browser, const CefString& message) {
 
 }
-
-static CefRefPtr<CefApp> app;
-static CefRefPtr<CefBrowser> browser;
-static CefRefPtr<PlayerBrowserClient> client;
-static CefRefPtr<PlayerHandler> handler;
-
-static std::queue<float> q;
-static int qChannels = 2;
-
-static double sampleRate = 44100.0;
-static int samplesPerBlock = 256;
-static int channels = 2;
-
-static int width = 800;
-static int height = 600;
 
 extern "C" {
     CEFWRAPPER_API void resized() {
@@ -177,6 +198,9 @@ extern "C" {
         if (CefCurrentlyOn(TID_UI)) {
             CefShutdown();
         }
+
+        qClear();
+        free(imageBuffer);
     }
 
     CEFWRAPPER_API void loadURL(const char* url) {
@@ -192,6 +216,11 @@ extern "C" {
     CEFWRAPPER_API void setLocalBounds(int width_, int height_) {
         width = width_;
         height = height_;
+    }
+
+    CEFWRAPPER_API void setAudioParam(int sampleRate_, int samplesPerBlock_) {
+        sampleRate = sampleRate_;
+        samplesPerBlock = samplesPerBlock_;
     }
 
     CEFWRAPPER_API void mouseMove(int x, int y) {
@@ -231,6 +260,24 @@ extern "C" {
             else if (isRight) type = 2;
 
             browser->GetHost()->SendMouseClickEvent(event, (CefBrowserHost::MouseButtonType)type, true, clickCount);
+        }
+    }
+
+    CEFWRAPPER_API void getImage(void* p, int* width_, int* height_) {
+        p = imageBuffer;
+        *width_ = imageWidth;
+        *height_ = imageHeight;
+    }
+
+    CEFWRAPPER_API void getAudioBuffer(float** data, int length) {
+        int length2 = min(length, q.size());
+
+        for (int i = 0; i < length2; i++) {
+            auto v = q.front();
+            q.pop();
+
+            for (int j = 0; j < qChannels; j++) data[j][i] = v[j];
+            v.clear();
         }
     }
 }

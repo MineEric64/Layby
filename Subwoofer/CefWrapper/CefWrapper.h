@@ -14,8 +14,12 @@ extern "C" {
     CEFWRAPPER_API void loadURL(const char* url);
     CEFWRAPPER_API void timerCallback();
     CEFWRAPPER_API void setLocalBounds(int width_, int height_);
+    CEFWRAPPER_API void setAudioParam(int sampleRate_, int samplesPerBlock_);
 
     CEFWRAPPER_API void mouseMove(int x, int y);
     CEFWRAPPER_API void mouseDown(int x, int y, int isLeft, int isMiddle, int isRight, int clickCount);
     CEFWRAPPER_API void mouseUp(int x, int y, int isLeft, int isMiddle, int isRight, int clickCount);
+
+    CEFWRAPPER_API void getImage(void* p, int* width, int* height);
+    CEFWRAPPER_API void getAudioBuffer(float** data, int length);
 }
