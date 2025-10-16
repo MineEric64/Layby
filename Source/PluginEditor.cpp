@@ -16,9 +16,13 @@ TestAudioProcessorEditor::TestAudioProcessorEditor (TestAudioProcessor& p)
     addAndMakeVisible(player);
     setSize(800, 600);
 
-    auto executableDir = juce::File::getSpecialLocation(juce::File::currentExecutableFile).getParentDirectory()
-        .getChildFile("CefWrapper.dll").getFullPathName().toStdString();
-    player.cef.init(executableDir);
+    //TODO: change to Resources path
+    auto executableDir = juce::File::getSpecialLocation(juce::File::currentExecutableFile).getParentDirectory();
+    auto executableDirPath = executableDir.getFullPathName();
+    executableDirPath.append("\\", 1);
+    auto dll = executableDir.getChildFile("CefWrapper.dll").getFullPathName();
+
+    player.cef.init(executableDirPath.toWideCharPointer(), dll.toWideCharPointer());
     player.initializeCEF();
 }
 

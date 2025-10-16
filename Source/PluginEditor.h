@@ -25,12 +25,12 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
+    Player player;
+
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     TestAudioProcessor& audioProcessor;
-
-    Player player;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TestAudioProcessorEditor)
 };

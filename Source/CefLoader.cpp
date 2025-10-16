@@ -8,7 +8,6 @@
   ==============================================================================
 */
 
-#include <string>
 #include "CefLoader.h"
 #include <JuceHeader.h>
 #define DEBUG(message, title) juce::NativeMessageBox::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon, title, message)
@@ -21,18 +20,23 @@ CefLoader::~CefLoader() {
     free();
 }
 
-bool CefLoader::init(std::string dllPath) {
-    handle = LoadLibraryA(dllPath.c_str());
-    DEBUG(dllPath, handle != NULL ? "1" : "0");
-    
-    if (handle == NULL) {
-        unsigned long a = GetLastError();
-        DEBUG(juce::String(a), "aaaaa");
-        return false;
+bool CefLoader::init(const wchar_t* dirPath, const wchar_t* dllPath) {
+    if (handle != NULL) return false;
+
+    BOOL success = SetDllDirectoryW(dirPath);
+
+    if (success) {
+        DEBUG(juce::String(dirPath), "OKAY");
     }
     else {
-        DEBUG("?????", "??????");
+        DEBUG(juce::String(dirPath), "HMM");
+        return false;
     }
+
+    handle = LoadLibraryW(dllPath);
+    DEBUG(juce::String(dllPath), handle != NULL ? "1" : "0");
+    
+    if (handle == NULL) return false;
 
     initializeCEF = (INITIALIZE_CEF)GetProcAddress(handle, "initializeCEF");
     shutdownCEF = (SHUTDOWN_CEF)GetProcAddress(handle, "shutdownCEF");

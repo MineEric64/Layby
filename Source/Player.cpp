@@ -20,6 +20,8 @@ Player::~Player() {
 }
 
 void Player::initializeCEF() {
+    if (cef.handle == NULL) return;
+
     auto executableDir = juce::File::getSpecialLocation(juce::File::currentExecutableFile).getParentDirectory();
     auto subwoofer = executableDir.getChildFile("layby_subwoofer.exe");
 

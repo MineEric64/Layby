@@ -28,8 +28,10 @@ class CefLoader {
 public:
     CefLoader();
     ~CefLoader();
-    bool init(std::string dllPath);
+    bool init(const wchar_t* dirPath, const wchar_t* dllPath);
     void free();
+
+    HMODULE handle = NULL;
 
     //Functions
     INITIALIZE_CEF initializeCEF = NULL;
@@ -44,7 +46,4 @@ public:
     MOUSE_UP mouseUp = NULL;
     GET_IMAGE getImage = NULL;
     GET_AUDIO_BUFFER getAudioBuffer = NULL;
-
-private:
-    HMODULE handle = NULL;
 };

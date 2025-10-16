@@ -150,7 +150,8 @@ bool TestAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* TestAudioProcessor::createEditor()
 {
-    return new TestAudioProcessorEditor (*this);
+    auto* editor = new TestAudioProcessorEditor(*this);
+    return editor;
 }
 
 //==============================================================================
