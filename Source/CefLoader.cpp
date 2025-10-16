@@ -12,11 +12,34 @@
 #include <JuceHeader.h>
 #define DEBUG(message, title) juce::NativeMessageBox::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon, title, message)
 
+class CefUnloadDelay : public juce::Timer
+{
+public:
+    CefUnloadDelay(HMODULE h) : handleToFree(h) {
+        startTimer(1000);
+    }
+
+private:
+    HMODULE handleToFree;
+
+    void timerCallback() override
+    {
+        stopTimer();
+
+        if (handleToFree)
+        {
+            FreeLibrary(handleToFree);
+        }
+        delete this;
+    }
+};
+
 CefLoader::CefLoader() {
 
 }
 
 CefLoader::~CefLoader() {
+    if (shutdownCEF != NULL) shutdownCEF();
     free();
 }
 
@@ -40,6 +63,7 @@ bool CefLoader::init(const wchar_t* dirPath, const wchar_t* dllPath) {
 
     initializeCEF = (INITIALIZE_CEF)GetProcAddress(handle, "initializeCEF");
     shutdownCEF = (SHUTDOWN_CEF)GetProcAddress(handle, "shutdownCEF");
+    isInitialized = (IS_INITIALIZED)GetProcAddress(handle, "isInitialized");
     resized = (RESIZED)GetProcAddress(handle, "resized");
     loadURL = (LOAD_URL)GetProcAddress(handle, "loadURL");
     timerCallback = (TIMER_CALLBACK)GetProcAddress(handle, "timerCallback");
@@ -55,15 +79,36 @@ bool CefLoader::init(const wchar_t* dirPath, const wchar_t* dllPath) {
 }
 
 void CefLoader::free() {
-    if (handle != NULL) {
-        FreeLibrary(handle);
-        handle = NULL;
+    HMODULE handleToFree = handle;
+    handle = NULL;
+    resized = NULL;
+    shutdownCEF = NULL;
+    getImage = NULL;
+    getAudioBuffer = NULL;
+    mouseMove = NULL;
+    timerCallback = NULL;
 
-        resized = NULL;
-        shutdownCEF = NULL;
-        getImage = NULL;
-        getAudioBuffer = NULL;
-        mouseMove = NULL;
-        timerCallback = NULL;
+    new CefUnloadDelay(handleToFree);
+}
+
+void CefLoader::kill() {
+    HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
+    PROCESSENTRY32 pEntry;
+    pEntry.dwSize = sizeof(pEntry);
+    BOOL hRes = Process32First(hSnapShot, &pEntry);
+    while (hRes)
+    {
+        if (strcmp(pEntry.szExeFile, "layby_subwoofer.exe") == 0)
+        {
+            HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, 0,
+                (DWORD)pEntry.th32ProcessID);
+            if (hProcess != NULL)
+            {
+                TerminateProcess(hProcess, 9);
+                CloseHandle(hProcess);
+            }
+        }
+        hRes = Process32Next(hSnapShot, &pEntry);
     }
+    CloseHandle(hSnapShot);
 }

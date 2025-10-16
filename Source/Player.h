@@ -25,10 +25,11 @@ public:
     void mouseDown(const juce::MouseEvent& event) override;
     void mouseUp(const juce::MouseEvent& event) override;
 
-    void initializeCEF();
+    static void initializeCEF();
     void updateImage(const void* buffer, int width, int height);
 
-    CefLoader cef;
+    static CefLoader cef;
+    inline static bool cefInit = false;
 
 private:
     juce::Image image;

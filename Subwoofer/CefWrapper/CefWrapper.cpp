@@ -1,9 +1,11 @@
-﻿#include <queue>
+﻿#include <mutex>
+#include <queue>
 #include <string>
 #include <vector>
 
 #include "CefWrapper.h"
 
+static bool init = false;
 static CefRefPtr<CefApp> app;
 static CefRefPtr<CefBrowser> browser;
 static CefRefPtr<PlayerBrowserClient> client;
@@ -11,8 +13,9 @@ static CefRefPtr<PlayerHandler> handler;
 
 static std::queue<std::vector<float>> q; //vector: channel
 static int qChannels = 2;
+static std::mutex qMutex;
 
-static double sampleRate = 44100.0;
+static int sampleRate = 48000;
 static int samplesPerBlock = 256;
 static int channels = 2;
 
@@ -28,6 +31,17 @@ void getViewRect(CefRect& rect) {
     rect.y = 0;
     rect.width = width;
     rect.height = height;
+}
+
+unsigned int random(int max) {
+    static unsigned int seed = 4937;
+    seed = 8253729 * seed + 2396403;
+    return seed % (max + 1);
+}
+
+void qClear() {
+    std::lock_guard<std::mutex> lock(qMutex);
+    while (!q.empty()) q.pop();
 }
 
 void PlayerHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
@@ -50,7 +64,7 @@ void PlayerHandler::OnPaint(CefRefPtr<CefBrowser> browser,
         imageHeight = height;
 
         imageBuffer = malloc(size);
-        memcpy(imageBuffer, buffer, size);
+        if (imageBuffer) memcpy(imageBuffer, buffer, size);
     }
 }
 
@@ -66,23 +80,25 @@ void PlayerHandler::OnAudioStreamStarted(CefRefPtr<CefBrowser> browser, const Ce
     channels = channel;
 
     if (qChannels != channel) {
-        while (!q.empty()) q.pop();
+        qClear();
         qChannels = channel;
     }
 }
 
 void PlayerHandler::OnAudioStreamPacket(CefRefPtr<CefBrowser> browser, const float** data, int frames, long long pts) {
     //bit depth: 32
+    std::lock_guard<std::mutex> lock(qMutex);
+
     for (int i = 0; i < frames; i++) {
         std::vector<float> v;
             
-        for (int j = 0; j < channels; j++) v.push_back(data[j][i]);
+        for (int j = 0; j < qChannels; j++) v.push_back(data[j][i]);
         q.push(v);
     }
 }
 
 void PlayerHandler::OnAudioStreamStopped(CefRefPtr<CefBrowser> browser) {
-    while (!q.empty()) q.pop();
+    qClear();
 }
 
 void PlayerHandler::OnAudioStreamError(CefRefPtr<CefBrowser> browser, const CefString& message) {
@@ -123,25 +139,38 @@ extern "C" {
         settings2.windowless_frame_rate = 60;
         settings2.background_color = CefColorSetARGB(255, 255, 255, 255);
 
-        auto url = CefString("https://youtube.com/embed/HgzGwKwLmgM"); //Default Video: Queen - Don't Stop Me Now
+        auto url = CefString("https://youtube.com/embed/PZz1Gxdb_tA"); //Default Video: AJR - Overture
+        if (random(100) == 49) url = CefString("https://youtube.com/embed/dQw4w9WgXcQ"); //...Or, is it?
+
         browser = CefBrowserHost::CreateBrowserSync(info, client, url, settings2, nullptr, nullptr);
 
         resized();
+        init = true;
         return 1;
     }
 
     CEFWRAPPER_API void shutdownCEF() {
         if (browser) { //if browser is not nullptr
             browser->GetHost()->CloseBrowser(true);
-            browser = nullptr;
         }
 
-        /*if (CefCurrentlyOn(TID_UI)) {
+        if (init && CefCurrentlyOn(TID_UI)) {
             CefShutdown();
-        }*/
+        }
 
-        while (!q.empty()) q.pop();
+        browser = nullptr;
+        client = nullptr;
+        handler = nullptr;
+        app = nullptr;
+
+        qClear();
         if (imageBuffer) free(imageBuffer);
+
+        init = false;
+    }
+
+    CEFWRAPPER_API int isInitialized() {
+        return init;
     }
 
     CEFWRAPPER_API void loadURL(const char* url) {
@@ -151,7 +180,7 @@ extern "C" {
     }
 
     CEFWRAPPER_API void timerCallback() {
-        CefDoMessageLoopWork();
+        if (init) CefDoMessageLoopWork();
     }
 
     CEFWRAPPER_API void setLocalBounds(int width_, int height_) {
@@ -204,21 +233,30 @@ extern "C" {
         }
     }
 
-    CEFWRAPPER_API void getImage(void** p, int* width_, int* height_) {
-        *p = imageBuffer;
-        *width_ = imageWidth;
-        *height_ = imageHeight;
+    CEFWRAPPER_API int getImage(void** p, int* width_, int* height_) {
+        if (imageBuffer) {
+            *p = imageBuffer;
+            *width_ = imageWidth;
+            *height_ = imageHeight;
+            return 1;
+        }
+        return 0;
     }
 
-    CEFWRAPPER_API void getAudioBuffer(float** data, int length) {
+    CEFWRAPPER_API int getAudioBuffer(float** data, int length, int destChannels) {
+        std::lock_guard<std::mutex> lock(qMutex);
         int length2 = length <= q.size() ? length : q.size();
+        int channels = qChannels <= destChannels ? qChannels : destChannels;
+        
+        if (length2 == 0) return 0;
 
         for (int i = 0; i < length2; i++) {
-            auto v = q.front();
-            q.pop();
+            const auto& v = q.front();
+            int channels2 = channels < v.size() ? channels : v.size();
 
-            for (int j = 0; j < qChannels; j++) data[j][i] = v[j];
-            v.clear();
+            for (int j = 0; j < channels2; j++) data[j][i] = v[j];
+            q.pop();
         }
+        return length2;
     }
 }

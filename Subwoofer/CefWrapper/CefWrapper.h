@@ -60,6 +60,7 @@ private:
 extern "C" {
     CEFWRAPPER_API int initializeCEF(const char* path, const wchar_t* cache);
     CEFWRAPPER_API void shutdownCEF();
+    CEFWRAPPER_API int isInitialized();
 
     CEFWRAPPER_API void resized();
     CEFWRAPPER_API void loadURL(const char* url);
@@ -71,6 +72,6 @@ extern "C" {
     CEFWRAPPER_API void mouseDown(int x, int y, int isLeft, int isMiddle, int isRight, int clickCount);
     CEFWRAPPER_API void mouseUp(int x, int y, int isLeft, int isMiddle, int isRight, int clickCount);
 
-    CEFWRAPPER_API void getImage(void** p, int* width_, int* height_);
-    CEFWRAPPER_API void getAudioBuffer(float** data, int length);
+    CEFWRAPPER_API int getImage(void** p, int* width_, int* height_);
+    CEFWRAPPER_API int getAudioBuffer(float** data, int length, int destChannels);
 }

@@ -10,17 +10,20 @@
 
 #include "Player.h"
 
+CefLoader Player::cef;
+
 Player::Player() {
     setSize(800, 600);
     startTimer(16); //60fps
 }
 
 Player::~Player() {
-    if (cef.shutdownCEF != NULL) cef.shutdownCEF();
+
 }
 
 void Player::initializeCEF() {
     if (cef.handle == NULL) return;
+    if (cefInit || (cef.isInitialized != NULL && cef.isInitialized())) return;
 
     auto executableDir = juce::File::getSpecialLocation(juce::File::currentExecutableFile).getParentDirectory();
     auto subwoofer = executableDir.getChildFile("layby_subwoofer.exe");
@@ -33,7 +36,7 @@ void Player::initializeCEF() {
     cacheDir.createDirectory();
     auto* cache = cacheDir.getFullPathName().toWideCharPointer();
 
-    if (cef.initializeCEF != NULL) cef.initializeCEF(subwoofer.getFullPathName().toRawUTF8(), cache);
+    if (cef.initializeCEF != NULL) cefInit = cef.initializeCEF(subwoofer.getFullPathName().toRawUTF8(), cache);
 }
 
 void Player::paint(juce::Graphics& g)
@@ -49,11 +52,22 @@ void Player::paint(juce::Graphics& g)
 }
 
 void Player::resized() {
+    if (cef.setLocalBounds != NULL) {
+        auto bounds = getLocalBounds();
+        cef.setLocalBounds(bounds.getWidth(), bounds.getHeight());
+    }
     if (cef.resized != NULL) cef.resized();
 }
 
 void Player::timerCallback() {
     if (cef.timerCallback != NULL) cef.timerCallback();
+    if (cef.getImage != NULL) {
+        void* buffer = NULL;
+        int width, height;
+        int success = cef.getImage(&buffer, &width, &height);
+
+        if (success) updateImage(buffer, width, height);
+    }
 }
 
 void Player::updateImage(const void* buffer, int width, int height) {

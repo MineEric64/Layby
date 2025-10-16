@@ -26,6 +26,8 @@ TestAudioProcessor::TestAudioProcessor()
 
 TestAudioProcessor::~TestAudioProcessor()
 {
+    Player::cef.~CefLoader();
+
 }
 
 //==============================================================================
@@ -95,8 +97,18 @@ void TestAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-    //PlayerHandler::sampleRate = sampleRate;
-    //PlayerHandler::samplesPerBlock = samplesPerBlock;
+    if (!Player::cefInit) {
+        //TODO: change to Resources path
+        auto executableDir = juce::File::getSpecialLocation(juce::File::currentExecutableFile).getParentDirectory();
+        auto executableDirPath = executableDir.getFullPathName();
+        executableDirPath.append("\\", 1);
+        auto dll = executableDir.getChildFile("CefWrapper.dll").getFullPathName();
+
+        Player::cef.init(executableDirPath.toWideCharPointer(), dll.toWideCharPointer());
+        Player::initializeCEF();
+    }
+
+    if (Player::cef.setAudioParam != NULL) Player::cef.setAudioParam((int)sampleRate, samplesPerBlock);
 }
 
 void TestAudioProcessor::releaseResources()
@@ -135,11 +147,27 @@ void TestAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
 {
     juce::ScopedNoDenormals noDenormals;
 
-    int channel = getNumOutputChannels();
+    int channels = buffer.getNumChannels();
 
-    for (int i = 0; i < channel; i++) {
-        //PlayerHandler::buffer.popAndAdd(i, PlayerHandler::samplesPerBlock, buffer);
+    //Clear the buffer
+    buffer.clear();
+
+    //Get audio buffer
+    float** buffer2 = (float**)malloc(sizeof(float*) * channels);
+    if (buffer2 != NULL) for (int i = 0; i < channels; i++) buffer2[i] = (float*)calloc(buffer.getNumSamples(), 4);
+    int length = -1;
+    
+    if (buffer2 != NULL && Player::cef.getAudioBuffer != NULL) length = Player::cef.getAudioBuffer(buffer2, buffer.getNumSamples(), channels);
+    
+    for (int i = 0; i < channels; i++) {
+        if (length > 0) { //if below zero, There's no audio data to copy
+            //TODO: Mixer
+            buffer.copyFrom(i, 0, buffer2[i], length);
+        }
+        if (buffer2 != NULL && buffer2[i] != NULL) free(buffer2[i]);
     }
+
+    if (buffer2 != NULL) free(buffer2);
 }
 
 //==============================================================================
