@@ -16,7 +16,7 @@ Player::Player() {
 }
 
 Player::~Player() {
-    //shutdownCEF();
+    if (cef.shutdownCEF != NULL) cef.shutdownCEF();
 }
 
 void Player::initializeCEF() {
@@ -31,7 +31,7 @@ void Player::initializeCEF() {
     cacheDir.createDirectory();
     auto* cache = cacheDir.getFullPathName().toWideCharPointer();
 
-
+    if (cef.initializeCEF != NULL) cef.initializeCEF(subwoofer.getFullPathName().toRawUTF8(), cache);
 }
 
 void Player::paint(juce::Graphics& g)
@@ -47,11 +47,11 @@ void Player::paint(juce::Graphics& g)
 }
 
 void Player::resized() {
-
+    if (cef.resized != NULL) cef.resized();
 }
 
 void Player::timerCallback() {
-    //CefDoMessageLoopWork();
+    if (cef.timerCallback != NULL) cef.timerCallback();
 }
 
 void Player::updateImage(const void* buffer, int width, int height) {
@@ -74,13 +74,13 @@ void Player::copyBufferToImage(const void* buffer, juce::Image& imageTo) {
 
 void Player::mouseMove(const juce::MouseEvent& event)
 {
-    
+    if (cef.mouseMove != NULL) cef.mouseMove(event.position.x, event.position.y);
 }
 
 void Player::mouseDown(const juce::MouseEvent& event) {
-    
+    if (cef.mouseDown != NULL) cef.mouseDown(event.position.x, event.position.y, event.mods.isLeftButtonDown(), event.mods.isMiddleButtonDown(), event.mods.isRightButtonDown(), event.getNumberOfClicks());
 }
 
 void Player::mouseUp(const juce::MouseEvent& event) {
-    
+    if (cef.mouseUp != NULL) cef.mouseUp(event.position.x, event.position.y, event.mods.isLeftButtonDown(), event.mods.isMiddleButtonDown(), event.mods.isRightButtonDown(), event.getNumberOfClicks());
 }

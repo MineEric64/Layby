@@ -1,19 +1,20 @@
-﻿// dllmain.cpp : DLL 애플리케이션의 진입점을 정의합니다.
-#include "pch.h"
+﻿#include "framework.h"
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
+BOOL APIENTRY DllMain(HMODULE hModule,
+    DWORD  ul_reason_for_call,
+    LPVOID lpReserved)
 {
+    if (ul_reason_for_call == DLL_THREAD_ATTACH ||
+        ul_reason_for_call == DLL_THREAD_DETACH)
+        return TRUE;
+
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
-    case DLL_THREAD_ATTACH:
-    case DLL_THREAD_DETACH:
+        break;
+
     case DLL_PROCESS_DETACH:
         break;
     }
     return TRUE;
 }
-

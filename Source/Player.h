@@ -11,8 +11,7 @@
 #pragma once
 #include <JuceHeader.h>
 #define DEBUG(message, title) juce::NativeMessageBox::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon, title, message)
-
-#include "AudioSampleBufferV2.h"
+#include "CefLoader.h"
 
 class Player : public juce::Component, public juce::Timer {
 public:
@@ -28,6 +27,8 @@ public:
 
     void initializeCEF();
     void updateImage(const void* buffer, int width, int height);
+
+    CefLoader cef;
 
 private:
     juce::Image image;
