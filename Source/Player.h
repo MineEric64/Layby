@@ -27,6 +27,7 @@ public:
 
     static void initializeCEF();
     void updateImage(const void* buffer, int width, int height);
+    void stopCEFTimer() { stopTimer(); }
 
     static CefLoader cef;
     inline static bool cefInit = false;

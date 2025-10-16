@@ -12,35 +12,12 @@
 #include <JuceHeader.h>
 #define DEBUG(message, title) juce::NativeMessageBox::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon, title, message)
 
-class CefUnloadDelay : public juce::Timer
-{
-public:
-    CefUnloadDelay(HMODULE h) : handleToFree(h) {
-        startTimer(1000);
-    }
-
-private:
-    HMODULE handleToFree;
-
-    void timerCallback() override
-    {
-        stopTimer();
-
-        if (handleToFree)
-        {
-            FreeLibrary(handleToFree);
-        }
-        delete this;
-    }
-};
-
 CefLoader::CefLoader() {
 
 }
 
 CefLoader::~CefLoader() {
-    if (shutdownCEF != NULL) shutdownCEF();
-    free();
+    
 }
 
 bool CefLoader::init(const wchar_t* dirPath, const wchar_t* dllPath) {
@@ -48,16 +25,11 @@ bool CefLoader::init(const wchar_t* dirPath, const wchar_t* dllPath) {
 
     BOOL success = SetDllDirectoryW(dirPath);
 
-    if (success) {
-        DEBUG(juce::String(dirPath), "OKAY");
-    }
-    else {
-        DEBUG(juce::String(dirPath), "HMM");
-        return false;
-    }
+    //DEBUG(juce::String(dirPath), "OKAY");
+    if (!success) return false;
 
     handle = LoadLibraryW(dllPath);
-    DEBUG(juce::String(dllPath), handle != NULL ? "1" : "0");
+    //DEBUG(juce::String(dllPath), handle != NULL ? "1" : "0");
     
     if (handle == NULL) return false;
 
@@ -72,6 +44,7 @@ bool CefLoader::init(const wchar_t* dirPath, const wchar_t* dllPath) {
     mouseMove = (MOUSE_MOVE)GetProcAddress(handle, "mouseMove");
     mouseDown = (MOUSE_DOWN)GetProcAddress(handle, "mouseDown");
     mouseUp = (MOUSE_UP)GetProcAddress(handle, "mouseUp");
+    getImageSize = (GET_IMAGE_SIZE)GetProcAddress(handle, "getImageSize");
     getImage = (GET_IMAGE)GetProcAddress(handle, "getImage");
     getAudioBuffer = (GET_AUDIO_BUFFER)GetProcAddress(handle, "getAudioBuffer");
 
@@ -79,16 +52,38 @@ bool CefLoader::init(const wchar_t* dirPath, const wchar_t* dllPath) {
 }
 
 void CefLoader::free() {
-    HMODULE handleToFree = handle;
+    //HMODULE handleToFree = handle;
+
     handle = NULL;
-    resized = NULL;
+    initializeCEF = NULL;
     shutdownCEF = NULL;
+    isInitialized = NULL;
+    resized = NULL;
+    loadURL = NULL;
+    timerCallback = NULL;
+    setLocalBounds = NULL;
+    setAudioParam = NULL;
+    mouseMove = NULL;
+    mouseDown = NULL;
+    mouseUp = NULL;
+    getImageSize = NULL;
     getImage = NULL;
     getAudioBuffer = NULL;
-    mouseMove = NULL;
-    timerCallback = NULL;
 
-    new CefUnloadDelay(handleToFree);
+    //WARNING: If FreeLibrary function is not called, memory will be leaked.
+    //but, in some DAWs There's access violation exception when call FreeLibrary function.
+    //So I have no idea what can I do.
+    /*if (handleToFree != NULL) {
+        FreeLibrary(handleToFree);
+    }*/
+
+    //If you want to delay to run some methods, try this (called thread)
+    /*if (handleToFree != NULL) {
+        CefCleanerThread* cleaner = new CefCleanerThread(handleToFree);
+        cleaner->startThread();
+    }*/
+
+    //kill();
 }
 
 void CefLoader::kill() {
@@ -112,3 +107,10 @@ void CefLoader::kill() {
     }
     CloseHandle(hSnapShot);
 }
+
+//void CefLoader::CefCleanerThread::run()
+//{
+//    if (handleToFree != NULL) {
+//        FreeLibrary(handleToFree);
+//    }
+//}

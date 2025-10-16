@@ -1,4 +1,7 @@
-﻿#include <mutex>
+﻿#include <cstdlib>
+#include <ctime>
+#include <memory>
+#include <mutex>
 #include <queue>
 #include <string>
 #include <vector>
@@ -6,6 +9,8 @@
 #include "CefWrapper.h"
 
 static bool init = false;
+static bool shutdowned = false;
+
 static CefRefPtr<CefApp> app;
 static CefRefPtr<CefBrowser> browser;
 static CefRefPtr<PlayerBrowserClient> client;
@@ -22,9 +27,16 @@ static int channels = 2;
 static int width = 800;
 static int height = 600;
 
-static void* imageBuffer = nullptr;
-static int imageWidth;
-static int imageHeight;
+struct MallocDeleter {
+    void operator()(void* ptr) const {
+        std::free(ptr);
+    }
+};
+using ImagePtr = std::unique_ptr<void, MallocDeleter>;
+
+static ImagePtr imageBuffer;
+static int imageWidth = 0;
+static int imageHeight = 0;
 
 void getViewRect(CefRect& rect) {
     rect.x = 0;
@@ -33,10 +45,9 @@ void getViewRect(CefRect& rect) {
     rect.height = height;
 }
 
-unsigned int random(int max) {
-    static unsigned int seed = 4937;
-    seed = 8253729 * seed + 2396403;
-    return seed % (max + 1);
+int random(int max) {
+    srand(time(NULL));
+    return rand() % (max + 1);
 }
 
 void qClear() {
@@ -54,17 +65,16 @@ void PlayerHandler::OnPaint(CefRefPtr<CefBrowser> browser,
     const void* buffer, int width, int height)
 {
     if (type == PET_VIEW) {
-        if (imageBuffer) {
-            free(imageBuffer);
-            imageBuffer = nullptr;
-        }
-
         int size = width * height * 4;
         imageWidth = width;
         imageHeight = height;
 
-        imageBuffer = malloc(size);
-        if (imageBuffer) memcpy(imageBuffer, buffer, size);
+        void* buffer2 = std::malloc(size);
+
+        if (buffer2) {
+            memcpy(buffer2, buffer, size);
+            imageBuffer.reset(buffer2);
+        }
     }
 }
 
@@ -126,7 +136,9 @@ extern "C" {
 
         app = new PlayerApp();
         int init = CefInitialize(args, settings, app.get(), nullptr);
+
         if (!init) return 0;
+        shutdowned = false;
 
         handler = new PlayerHandler();
         client = new PlayerBrowserClient(handler);
@@ -140,7 +152,7 @@ extern "C" {
         settings2.background_color = CefColorSetARGB(255, 255, 255, 255);
 
         auto url = CefString("https://youtube.com/embed/PZz1Gxdb_tA"); //Default Video: AJR - Overture
-        if (random(100) == 49) url = CefString("https://youtube.com/embed/dQw4w9WgXcQ"); //...Or, is it?
+        if (random(100) == 49) url = CefString("https://youtube.com/embed/RrESvSRNpeo"); //...Or, is it?
 
         browser = CefBrowserHost::CreateBrowserSync(info, client, url, settings2, nullptr, nullptr);
 
@@ -154,17 +166,24 @@ extern "C" {
             browser->GetHost()->CloseBrowser(true);
         }
 
+        for (int i = 0; i < 50; i++) {
+            CefDoMessageLoopWork();
+            Sleep(1);
+        }
+
         if (init && CefCurrentlyOn(TID_UI)) {
+            shutdowned = true;
             CefShutdown();
         }
+        Sleep(100);
+
+        qClear();
+        imageBuffer.reset();
 
         browser = nullptr;
         client = nullptr;
         handler = nullptr;
         app = nullptr;
-
-        qClear();
-        if (imageBuffer) free(imageBuffer);
 
         init = false;
     }
@@ -180,7 +199,8 @@ extern "C" {
     }
 
     CEFWRAPPER_API void timerCallback() {
-        if (init) CefDoMessageLoopWork();
+        if (shutdowned) return;
+        CefDoMessageLoopWork();
     }
 
     CEFWRAPPER_API void setLocalBounds(int width_, int height_) {
@@ -233,11 +253,15 @@ extern "C" {
         }
     }
 
-    CEFWRAPPER_API int getImage(void** p, int* width_, int* height_) {
-        if (imageBuffer) {
-            *p = imageBuffer;
-            *width_ = imageWidth;
-            *height_ = imageHeight;
+    CEFWRAPPER_API void getImageSize(int* width, int* height) {
+        *width = imageWidth;
+        *height = imageHeight;
+    }
+
+    CEFWRAPPER_API int getImage(void* p, int length) {
+        if (imageBuffer.get()) {
+            //p = imageBuffer.get();
+            memcpy(p, imageBuffer.get(), length);
             return 1;
         }
         return 0;

@@ -15,6 +15,8 @@
 #include <winbase.h>
 #include <string.h>
 
+#include <JuceHeader.h>
+
 typedef int (__cdecl* INITIALIZE_CEF)(const char* path, const wchar_t* cache);
 typedef void (__cdecl* SHUTDOWN_CEF)();
 typedef int (__cdecl* IS_INITIALIZED)();
@@ -26,7 +28,8 @@ typedef void (__cdecl* SET_AUDIO_PARAM)(int sampleRate_, int samplesPerBlock);
 typedef void (__cdecl* MOUSE_MOVE)(int x, int y);
 typedef void (__cdecl* MOUSE_DOWN)(int x, int y, int isLeft, int isMiddle, int isRight, int clickCount);
 typedef void (__cdecl* MOUSE_UP)(int x, int y, int isLeft, int isMiddle, int isRight, int clickCount);
-typedef int (__cdecl* GET_IMAGE)(void** p, int* width, int* height);
+typedef void (__cdecl* GET_IMAGE_SIZE)(int* width, int* height);
+typedef int (__cdecl* GET_IMAGE)(void* p, int length);
 typedef int (__cdecl* GET_AUDIO_BUFFER)(float** data, int length, int destChannels);
 
 class CefLoader {
@@ -38,7 +41,6 @@ public:
     void kill();
 
     HMODULE handle = NULL;
-
 
     //Functions
     INITIALIZE_CEF initializeCEF = NULL;
@@ -52,6 +54,18 @@ public:
     MOUSE_MOVE mouseMove = NULL;
     MOUSE_DOWN mouseDown = NULL;
     MOUSE_UP mouseUp = NULL;
+    GET_IMAGE_SIZE getImageSize = NULL;
     GET_IMAGE getImage = NULL;
     GET_AUDIO_BUFFER getAudioBuffer = NULL;
+
+//private:
+//    class CefCleanerThread : public juce::Thread
+//    {
+//    public:
+//        CefCleanerThread(HMODULE h) : juce::Thread("CEFCleaner"), handleToFree(h) {}
+//        void run() override;
+//
+//    private:
+//        HMODULE handleToFree;
+//    };
 };

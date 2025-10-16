@@ -26,8 +26,12 @@ TestAudioProcessor::TestAudioProcessor()
 
 TestAudioProcessor::~TestAudioProcessor()
 {
-    Player::cef.~CefLoader();
+    if (Player::cef.shutdownCEF != NULL) Player::cef.shutdownCEF();
+    //Player::cef.kill();
+    Player::cef.free();
 
+    Player::cefInit = false;
+    Player::cef = CefLoader();
 }
 
 //==============================================================================
@@ -161,7 +165,11 @@ void TestAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
     
     for (int i = 0; i < channels; i++) {
         if (length > 0) { //if below zero, There's no audio data to copy
+
             //TODO: Mixer
+            //https://forum.juce.com/t/sample-rate-conversion-between-44-1-khz-and-48-khz/38147/6
+            //https://github.com/libsndfile/libsamplerate
+
             buffer.copyFrom(i, 0, buffer2[i], length);
         }
         if (buffer2 != NULL && buffer2[i] != NULL) free(buffer2[i]);

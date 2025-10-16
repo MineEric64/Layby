@@ -72,6 +72,7 @@ extern "C" {
     CEFWRAPPER_API void mouseDown(int x, int y, int isLeft, int isMiddle, int isRight, int clickCount);
     CEFWRAPPER_API void mouseUp(int x, int y, int isLeft, int isMiddle, int isRight, int clickCount);
 
-    CEFWRAPPER_API int getImage(void** p, int* width_, int* height_);
+    CEFWRAPPER_API void getImageSize(int* width, int* height);
+    CEFWRAPPER_API int getImage(void* p, int length);
     CEFWRAPPER_API int getAudioBuffer(float** data, int length, int destChannels);
 }

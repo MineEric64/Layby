@@ -8,17 +8,19 @@
   ==============================================================================
 */
 
+#define WIDTH 800
+#define HEIGHT 600
 #include "Player.h"
 
 CefLoader Player::cef;
 
 Player::Player() {
-    setSize(800, 600);
+    setSize(WIDTH, HEIGHT);
     startTimer(16); //60fps
 }
 
 Player::~Player() {
-
+    stopTimer();
 }
 
 void Player::initializeCEF() {
@@ -36,13 +38,14 @@ void Player::initializeCEF() {
     cacheDir.createDirectory();
     auto* cache = cacheDir.getFullPathName().toWideCharPointer();
 
+    if (cef.setLocalBounds != NULL) cef.setLocalBounds(WIDTH, HEIGHT);
     if (cef.initializeCEF != NULL) cefInit = cef.initializeCEF(subwoofer.getFullPathName().toRawUTF8(), cache);
 }
 
 void Player::paint(juce::Graphics& g)
 {
     if (image.isValid()) {
-        g.drawImage(image, getLocalBounds().toFloat());
+        g.drawImage(image, getLocalBounds().toFloat(), juce::RectanglePlacement::doNotResize);
     }
     else {
         g.fillAll(juce::Colours::black);
@@ -61,12 +64,18 @@ void Player::resized() {
 
 void Player::timerCallback() {
     if (cef.timerCallback != NULL) cef.timerCallback();
-    if (cef.getImage != NULL) {
-        void* buffer = NULL;
+    if (cef.getImageSize != NULL && cef.getImage != NULL) {
         int width, height;
-        int success = cef.getImage(&buffer, &width, &height);
+        cef.getImageSize(&width, &height);
 
-        if (success) updateImage(buffer, width, height);
+        if (width > 0 && height > 0) {
+            int length = width * height * 4;
+            void* buffer = malloc(length);
+            int success = cef.getImage(buffer, length);
+
+            if (success) updateImage(buffer, width, height);
+            free(buffer);
+        }
     }
 }
 
