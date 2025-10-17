@@ -17,6 +17,8 @@ CefLoader Player::cef;
 Player::Player() {
     setSize(WIDTH, HEIGHT);
     startTimer(16); //60fps
+
+    setWantsKeyboardFocus(true);
 }
 
 Player::~Player() {
@@ -109,4 +111,18 @@ void Player::mouseDown(const juce::MouseEvent& event) {
 
 void Player::mouseUp(const juce::MouseEvent& event) {
     if (cef.mouseUp != NULL) cef.mouseUp(event.position.x, event.position.y, event.mods.isLeftButtonDown(), event.mods.isMiddleButtonDown(), event.mods.isRightButtonDown(), event.getNumberOfClicks());
+}
+
+bool Player::keyPressed(const juce::KeyPress& key)
+{
+    auto ch = key.getTextCharacter();
+    bool result = false;
+
+    //unsigned int to char16_t
+    char16_t ch2 = u'\0';
+    if (ch != 0 && ch <= 0xFFFF) ch2 = static_cast<char16_t>(ch);
+
+    // If return's value is false, allow other components to handle the event
+    if (cef.keyPressed != NULL && ch2 != 0) result = cef.keyPressed(ch2, key.getKeyCode());
+    return result;
 }

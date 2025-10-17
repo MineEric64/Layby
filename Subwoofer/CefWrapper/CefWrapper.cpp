@@ -253,6 +253,26 @@ extern "C" {
         }
     }
 
+    CEFWRAPPER_API int keyPressed(const char16_t key, int vk) {
+        if (browser) {
+            CefKeyEvent event1;
+            event1.type = KEYEVENT_RAWKEYDOWN;
+            event1.windows_key_code = vk;
+            event1.modifiers = 0;
+
+            browser->GetHost()->SendKeyEvent(event1);
+
+            CefKeyEvent event2;
+            event2.type = KEYEVENT_CHAR;
+            event2.windows_key_code = 0;
+            event2.character = key;
+
+            browser->GetHost()->SendKeyEvent(event2);
+            return 1;
+        }
+        return 0;
+    }
+
     CEFWRAPPER_API void getImageSize(int* width, int* height) {
         *width = imageWidth;
         *height = imageHeight;

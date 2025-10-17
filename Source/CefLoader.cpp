@@ -44,6 +44,7 @@ bool CefLoader::init(const wchar_t* dirPath, const wchar_t* dllPath) {
     mouseMove = (MOUSE_MOVE)GetProcAddress(handle, "mouseMove");
     mouseDown = (MOUSE_DOWN)GetProcAddress(handle, "mouseDown");
     mouseUp = (MOUSE_UP)GetProcAddress(handle, "mouseUp");
+    keyPressed = (KEY_PRESSED)GetProcAddress(handle, "keyPressed");
     getImageSize = (GET_IMAGE_SIZE)GetProcAddress(handle, "getImageSize");
     getImage = (GET_IMAGE)GetProcAddress(handle, "getImage");
     getAudioBuffer = (GET_AUDIO_BUFFER)GetProcAddress(handle, "getAudioBuffer");
@@ -66,6 +67,7 @@ void CefLoader::free() {
     mouseMove = NULL;
     mouseDown = NULL;
     mouseUp = NULL;
+    keyPressed = NULL;
     getImageSize = NULL;
     getImage = NULL;
     getAudioBuffer = NULL;

@@ -24,11 +24,12 @@ public:
     void textEditorEscapeKeyPressed(juce::TextEditor& editor) override;
     void textEditorFocusLost(juce::TextEditor& editor) override;
 
-    juce::String parseVideoId(juce::String url);
+    juce::String parseVideoId(juce::String url, bool& isHome);
 
 private:
     juce::TextEditor textEditor;
     juce::TextButton loadButton { "Enter" };
+    //juce::TextButton homeButton { "Home" };
 
     void buttonClicked(juce::Button* button) override;
 

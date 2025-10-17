@@ -41,6 +41,6 @@ void TestAudioProcessorEditor::resized()
     // subcomponents in your editor..
     player.setBounds(getLocalBounds().withSize(800, 540));
 
-    parser.setBounds(juce::Rectangle<int>(160, 555, 440, 30));
+    parser.setBounds(juce::Rectangle<int>(160, 555, 480, 30));
     parser.toFront(true);
 }

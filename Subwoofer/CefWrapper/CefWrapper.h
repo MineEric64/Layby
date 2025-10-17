@@ -71,6 +71,7 @@ extern "C" {
     CEFWRAPPER_API void mouseMove(int x, int y);
     CEFWRAPPER_API void mouseDown(int x, int y, int isLeft, int isMiddle, int isRight, int clickCount);
     CEFWRAPPER_API void mouseUp(int x, int y, int isLeft, int isMiddle, int isRight, int clickCount);
+    CEFWRAPPER_API int keyPressed(const char16_t key, int vk);
 
     CEFWRAPPER_API void getImageSize(int* width, int* height);
     CEFWRAPPER_API int getImage(void* p, int length);

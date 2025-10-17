@@ -28,6 +28,7 @@ typedef void (__cdecl* SET_AUDIO_PARAM)(int sampleRate_, int samplesPerBlock);
 typedef void (__cdecl* MOUSE_MOVE)(int x, int y);
 typedef void (__cdecl* MOUSE_DOWN)(int x, int y, int isLeft, int isMiddle, int isRight, int clickCount);
 typedef void (__cdecl* MOUSE_UP)(int x, int y, int isLeft, int isMiddle, int isRight, int clickCount);
+typedef int (__cdecl* KEY_PRESSED)(const char16_t key, int vk);
 typedef void (__cdecl* GET_IMAGE_SIZE)(int* width, int* height);
 typedef int (__cdecl* GET_IMAGE)(void* p, int length);
 typedef int (__cdecl* GET_AUDIO_BUFFER)(float** data, int length, int destChannels);
@@ -54,6 +55,7 @@ public:
     MOUSE_MOVE mouseMove = NULL;
     MOUSE_DOWN mouseDown = NULL;
     MOUSE_UP mouseUp = NULL;
+    KEY_PRESSED keyPressed = NULL;
     GET_IMAGE_SIZE getImageSize = NULL;
     GET_IMAGE getImage = NULL;
     GET_AUDIO_BUFFER getAudioBuffer = NULL;

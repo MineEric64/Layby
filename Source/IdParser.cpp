@@ -15,11 +15,14 @@
 IdParser::IdParser() {
     addAndMakeVisible(textEditor);
     addAndMakeVisible(loadButton);
+    //addAndMakeVisible(homeButton);
 
     textEditor.setTextToShowWhenEmpty("Enter YouTube URL...", juce::Colours::grey);
     textEditor.applyFontToAllText(juce::FontOptions(20.0));
+    textEditor.addListener(this);
 
     loadButton.addListener(this);
+    //homeButton.addListener(this);
 
     setSize(440, 30);
 }
@@ -31,7 +34,8 @@ IdParser::~IdParser() {
 void IdParser::resized() {
     auto bounds = getLocalBounds();
 
-    loadButton.setBounds(bounds.removeFromRight(bounds.getWidth() / 4));
+    //homeButton.setBounds(bounds.removeFromRight(bounds.getWidth() / 8));
+    loadButton.setBounds(bounds.removeFromRight(bounds.getWidth() / 4.3));
     textEditor.setBounds(bounds);
 }
 
@@ -46,7 +50,9 @@ void IdParser::textEditorTextChanged(juce::TextEditor& editor)
 
 void IdParser::textEditorReturnKeyPressed(juce::TextEditor& editor)
 {
+    //if (editor == textEditor) {}
     loadButton.triggerClick();
+    editor.unfocusAllComponents();
 }
 
 void IdParser::textEditorEscapeKeyPressed(juce::TextEditor& editor) {
@@ -58,16 +64,29 @@ void IdParser::textEditorFocusLost(juce::TextEditor& editor) {
 }
 
 void IdParser::buttonClicked(juce::Button* button) {
-    juce::String url = parseVideoId(textEditor.getText());
+    if (button == &loadButton) {
+        bool isHome = false;
+        juce::String text = textEditor.getText();
+        juce::String id = parseVideoId(text, isHome);
+        juce::String url("https://www.youtube.com/embed/");
 
-    if (url.length() <= 0) {
-        juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::WarningIcon, "Layby", "Please input the valid URL.");
-        return;
+        if (id.length() > 0) url += id;
+        else if (isHome) url = juce::String("https://www.youtube.com");
+        else { //it means it's not from youtube website. etc (ex: soundcloud, spotify ...)
+            url = text;
+
+            //juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon, "Layby", "Please input the valid URL.");
+            //return;
+        }
+        if (Player::cef.loadURL != NULL) Player::cef.loadURL(url.toRawUTF8());
     }
-    if (Player::cef.loadURL != NULL) Player::cef.loadURL(url.toRawUTF8());
+    /*else if (button == &homeButton) {
+        juce::String url("https://www.youtube.com");
+        if (Player::cef.loadURL != NULL) Player::cef.loadURL(url.toRawUTF8());
+    }*/
 }
 
-juce::String IdParser::parseVideoId(juce::String url) {
+juce::String IdParser::parseVideoId(juce::String url, bool& isHome) {
     juce::String urlOriginal(url);
 
     //HTTP / HTTPS
@@ -78,8 +97,6 @@ juce::String IdParser::parseVideoId(juce::String url) {
     if (url.startsWithIgnoreCase("www.")) url = url.substring(4);
     
     //Domain Name
-    juce::String urlBase = juce::String("https://www.youtube.com/embed/");
-
     if (url.startsWithIgnoreCase("youtube.com")) {
         url = url.substring(11);
 
@@ -97,36 +114,35 @@ juce::String IdParser::parseVideoId(juce::String url) {
             }
 
             //id must be 11 characters!
-            if (url.length() == 11) urlBase += url;
+            if (url.length() == 11) return url;
         }
         else if (url.startsWithIgnoreCase("/embed/")) {
             url = url.substring(7);
-            
+
             if (url.length() >= 11) {
                 url = url.substring(0, 11);
-                urlBase += url;
+                return url;
             }
         }
         else if (url.startsWithIgnoreCase("/v/")) {
             url = url.substring(3);
-            
+
             if (url.length() >= 11) {
                 url = url.substring(0, 11);
-                urlBase += url;
+                return url;
             }
         }
-        else if (url == "/" || url.length() == 0 || url == "/watch" || url == "/v" || url == "/v/") urlBase = juce::String("https://www.youtube.com"); //it's just youtube main homepage
+        else if (url == "/" || url.length() == 0 || url == "/watch" || url == "/v" || url == "/v/") isHome = 1; //it's just youtube main homepage
     }
     else if (url.startsWithIgnoreCase("youtu.be")) {
         url = url.substring(8);
 
-        if (url == "/" || url.length() == 0) urlBase = juce::String("https://www.youtube.com"); //it's just youtube main homepage
+        if (url == "/" || url.length() == 0) isHome = 1; //it's just youtube main homepage
         else if (url.startsWithIgnoreCase("/") && url.length() >= 12) {
             url = url.substring(1, 12);
-            urlBase += url;
+            return url;
         }
     }
 
-    if (urlBase == "https://www.youtube.com/embed/") return juce::String();
-    return urlBase;
+    return juce::String();
 }
