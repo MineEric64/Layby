@@ -9,7 +9,7 @@
 */
 
 #define WIDTH 800
-#define HEIGHT 600
+#define HEIGHT 540
 #include "Player.h"
 
 CefLoader Player::cef;
@@ -45,7 +45,8 @@ void Player::initializeCEF() {
 void Player::paint(juce::Graphics& g)
 {
     if (image.isValid()) {
-        g.drawImage(image, getLocalBounds().toFloat(), juce::RectanglePlacement::doNotResize);
+        juce::RectanglePlacement placement(juce::RectanglePlacement::xMid | juce::RectanglePlacement::yTop);
+        g.drawImage(image, getLocalBounds().toFloat(), placement);
     }
     else {
         g.fillAll(juce::Colours::black);

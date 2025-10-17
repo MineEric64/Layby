@@ -10,7 +10,9 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+
 #include "Player.h"
+#include "IdParser.h"
 
 //==============================================================================
 /**
@@ -26,6 +28,7 @@ public:
     void resized() override;
 
     Player player;
+    IdParser parser;
 
 private:
     // This reference is provided as a quick way for your editor to

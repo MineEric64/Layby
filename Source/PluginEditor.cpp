@@ -14,6 +14,8 @@ TestAudioProcessorEditor::TestAudioProcessorEditor (TestAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
     addAndMakeVisible(player);
+    addAndMakeVisible(parser);
+
     setSize(800, 600);
 }
 
@@ -37,5 +39,8 @@ void TestAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
-    player.setBounds(getLocalBounds());
+    player.setBounds(getLocalBounds().withSize(800, 540));
+
+    parser.setBounds(juce::Rectangle<int>(160, 555, 440, 30));
+    parser.toFront(true);
 }
