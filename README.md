@@ -25,10 +25,12 @@ Including VST3 with installer
 - [CefSharp: AudioHandler.cs](https://github.com/cefsharp/CefSharp/blob/cefsharp/85/CefSharp.Example/Handlers/AudioHandler.cs)
 - [processBlock();](https://leestrument.tistory.com/entry/processBlock)
 
-Used main framework: JUCE
+## And...
+- Used main framework: JUCE
+- Web Browser Library: CEF
 
-(+) Web Browser Library: CEF
+I tried to use WebView2 instead of CEF, but it failed. IDK why error happens. Just I have no idea.
 
-**P.S.** I tried to use WebView2 instead of CEF, but it failed. IDK why error happens. Just I have no idea.
+Using CEF Static Loading crashes DAW. IDK why too. So I had to change Dynamic Loading (at Runtime) using `LoadLibrary()` function.
 
-If you want to port CEF to WebView2 because it's simple and lightweight, you're welcome! (PR)
+If you want to port CEF to WebView2 because it's simple and lightweight (or you want to contribute because you just came with AMAZING idea), you're welcome!! (PR)
