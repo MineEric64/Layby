@@ -24,6 +24,8 @@ TestAudioProcessor::TestAudioProcessor()
 {
 }
 
+//auto logg = juce::FileLogger(juce::File::getSpecialLocation(juce::File::currentExecutableFile).getParentDirectory().getChildFile("debug.log"), "SHIT");
+
 TestAudioProcessor::~TestAudioProcessor()
 {
     if (Player::cef.shutdownCEF != NULL) Player::cef.shutdownCEF();
@@ -162,7 +164,8 @@ void TestAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
     int length = -1;
     
     if (buffer2 != NULL && Player::cef.getAudioBuffer != NULL) length = Player::cef.getAudioBuffer(buffer2, buffer.getNumSamples(), channels);
-    
+    //logg.logMessage(juce::String(length));
+
     for (int i = 0; i < channels; i++) {
         if (length > 0) { //if below zero, There's no audio data to copy
 

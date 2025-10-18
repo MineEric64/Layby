@@ -101,9 +101,10 @@ void PlayerHandler::OnAudioStreamPacket(CefRefPtr<CefBrowser> browser, const flo
 
     for (int i = 0; i < frames; i++) {
         std::vector<float> v;
+        v.reserve(qChannels);
             
         for (int j = 0; j < qChannels; j++) v.push_back(data[j][i]);
-        q.push(v);
+        q.push(std::move(v));
     }
 }
 
@@ -152,7 +153,7 @@ extern "C" {
         settings2.background_color = CefColorSetARGB(255, 255, 255, 255);
 
         auto url = CefString("https://youtube.com/embed/PZz1Gxdb_tA"); //Default Video: AJR - Overture
-        if (random(100) == 49) url = CefString("https://youtube.com/embed/RrESvSRNpeo"); //...Or, is it?
+        if (random(100) == 49) url = CefString("https://youtube.com/embed/GtL1huin9EE"); //...Or, is it?
 
         browser = CefBrowserHost::CreateBrowserSync(info, client, url, settings2, nullptr, nullptr);
 

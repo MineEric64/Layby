@@ -70,7 +70,13 @@ void IdParser::buttonClicked(juce::Button* button) {
         juce::String id = parseVideoId(text, isHome);
         juce::String url("https://www.youtube.com/embed/");
 
-        if (id.length() > 0) url += id;
+        if (id.length() > 0) {
+            url += id;
+
+            juce::String simply("https://youtu.be/");
+            simply += id;
+            textEditor.setText(simply);
+        }
         else if (isHome) url = juce::String("https://www.youtube.com");
         else { //it means it's not from youtube website. etc (ex: soundcloud, spotify ...)
             url = text;
