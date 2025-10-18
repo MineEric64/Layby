@@ -14,6 +14,10 @@ Also, not only YouTube, but also supporting Soundcloud, Spotify and etc (any web
 
 Furthermore, IT'S FREE!!!!!
 
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/mineeric64)
+
+(but hey, thank you so much ⸜(｡˃ ᵕ ˂ )⸝♡)
+
 ## Download
 - https://github.com/MineEric64/Layby/releases/latest
 
