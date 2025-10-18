@@ -13,7 +13,7 @@ For example on [this demonstration video](https://youtu.be/JsedfYSJNWI), It work
 
 Also, not only YouTube, but also supporting Soundcloud, Spotify and etc (any website)
 
-Furthermore, IT'S FREE!!!!!
+Furthermore, IT'S **FREE**!!!!!
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/mineeric64)
 
