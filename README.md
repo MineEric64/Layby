@@ -12,6 +12,8 @@ For example on [this demonstration video](https://youtu.be/JsedfYSJNWI), It work
 
 Also, not only YouTube, but also supporting Soundcloud, Spotify and etc (any website)
 
+Furthermore, IT'S FREE!!!!!
+
 ## Download
 - https://github.com/MineEric64/Layby/releases/latest
 
