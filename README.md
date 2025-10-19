@@ -19,7 +19,8 @@ Furthermore, IT'S **FREE**!!!!!
 
 (but hey, thank you so much ⸜(｡˃ ᵕ ˂ )⸝♡)
 
-## [Download](https://github.com/MineEric64/Layby/releases/latest)
+## Download
+- https://github.com/MineEric64/Layby/releases/latest
 
 Including VST3 with installer
 
