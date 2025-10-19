@@ -45,3 +45,18 @@ I tried to use WebView2 instead of CEF, but it failed. IDK why error happens. Ju
 Using CEF Static Loading crashes DAW. IDK why too. So I had to change Dynamic Loading (at Runtime) using `LoadLibrary()` function.
 
 If you want to port CEF to WebView2 because it's simple and lightweight (or you want to contribute because you just came with AMAZING idea), you're welcome!! (PR)
+
+Also, you need to compile CEF library manually. If you don't know well about this, you can [create the issue](https://github.com/Layby/issues/new) and alert to me!
+
+### Known issues
+- Audio Stuttering when focus out
+
+because of CEF ([CEFWrapper.cpp](https://github.com/MineEric64/Layby/blob/main/Subwoofer/CefWrapper/CefWrapper.cpp)), happens on `OnAudioStreamPacket()`
+
+- Sometimes crash
+IDK why happens, I think it's from CEF error (or unstabilized)
+
+- Memory leak
+happens `FreeLibrary()` on [CefLoader.cpp](https://github.com/MineEric64/Layby/blob/main/Source/CefLoader.cpp) `free()`
+
+Calling FreeLibrary function makes DAW crash. IDK why.
