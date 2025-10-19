@@ -19,10 +19,13 @@ Furthermore, IT'S **FREE**!!!!!
 
 (but hey, thank you so much ⸜(｡˃ ᵕ ˂ )⸝♡)
 
-## Download
-- https://github.com/MineEric64/Layby/releases/latest
+## [Download](https://github.com/MineEric64/Layby/releases/latest)
 
 Including VST3 with installer
+
+Unfortunately, yet supports Windows only.
+
+You can try port to macOS or Linux if you want! (PR)
 
 ## Credits
 - [JuneCEF: cef.cpp](https://github.com/abhijitnandy2011/JuceCEF/blob/master/glcef/Source/cef.cpp)
