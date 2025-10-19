@@ -30,17 +30,32 @@ public:
     bool keyPressed(const juce::KeyPress& key) override;
 
     static void initializeCEF();
+    static juce::String getURL();
+    static void loadURL(const juce::String& url);
+    static void bypass();
     void updateImage(const void* buffer, int width, int height);
     void stopCEFTimer() { stopTimer(); }
+    void setupCallback(std::function<void()> f, int delay);
+
+    static void playVideo();
+    static void pauseVideo();
+    static void stopVideo();
+    static void seekTo(float time);
 
     static CefLoader cef;
     inline static bool cefInit = false;
+    inline static bool bypassed = false;
 
 private:
     juce::Image image;
     juce::CriticalSection imageMutex;
+    
+    std::function<void()> callback;
+    int delayRemain;
 
     void copyBufferToImage(const void* buffer, juce::Image& imageTo);
+    static void mouseDownInternal(int x, int y, int isLeft, int isMiddle, int isRight, int clickCount);
+    static void mouseUpInternal(int x, int y, int isLeft, int isMiddle, int isRight, int clickCount);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Player)
 };

@@ -24,7 +24,7 @@ public:
     void textEditorEscapeKeyPressed(juce::TextEditor& editor) override;
     void textEditorFocusLost(juce::TextEditor& editor) override;
 
-    juce::String parseVideoId(juce::String url, bool& isHome);
+    static juce::String parseVideoId(juce::String url, bool& isHome);
 
 private:
     juce::TextEditor textEditor;

@@ -1,4 +1,5 @@
-﻿#include <cstdlib>
+﻿#define _CRT_SECURE_NO_WARNINGS
+#include <cstdlib>
 #include <ctime>
 #include <memory>
 #include <mutex>
@@ -152,8 +153,8 @@ extern "C" {
         settings2.windowless_frame_rate = 60;
         settings2.background_color = CefColorSetARGB(255, 255, 255, 255);
 
-        auto url = CefString("https://youtube.com/embed/PZz1Gxdb_tA"); //Default Video: AJR - Overture
-        if (random(100) == 49) url = CefString("https://youtube.com/embed/GtL1huin9EE"); //...Or, is it?
+        auto url = CefString("https://youtube.com/embed/PZz1Gxdb_tA?enablejsapi=1"); //Default Video: AJR - Overture
+        if (random(100) == 49) url = CefString("https://youtube.com/embed/GtL1huin9EE?enablejsapi=1"); //...Or, is it?
 
         browser = CefBrowserHost::CreateBrowserSync(info, client, url, settings2, nullptr, nullptr);
 
@@ -196,6 +197,16 @@ extern "C" {
     CEFWRAPPER_API void loadURL(const char* url) {
         if (browser) {
             browser->GetMainFrame()->LoadURL(CefString(url));
+        }
+    }
+
+    CEFWRAPPER_API void getURL(char* url) {
+        if (browser) {
+            std::string urlFrom = browser->GetMainFrame()->GetURL().ToString();
+            int size = sizeof(url);
+            if (urlFrom.length() >= size) urlFrom = urlFrom.substr(0, size);
+
+            strcpy(url, urlFrom.c_str());
         }
     }
 
@@ -272,6 +283,31 @@ extern "C" {
             return 1;
         }
         return 0;
+    }
+
+    CEFWRAPPER_API void executeJS(const char* script) {
+        if (browser) {
+            auto frame = browser->GetMainFrame();
+
+            CefString script2(script);
+            CefString url = frame->GetURL();
+
+            frame->ExecuteJavaScript(script2, url, 0);
+        }
+    }
+
+    CEFWRAPPER_API void showDevTools() {
+        if (browser) {
+            CefWindowInfo info;
+            CefBrowserSettings settings;
+
+            settings.windowless_frame_rate = 60;
+            info.windowless_rendering_enabled = true;
+            info.SetAsWindowless(nullptr);
+            //info.SetAsPopup(NULL, "DevTools");
+
+            browser->GetHost()->ShowDevTools(info, nullptr, settings, CefPoint());
+        }
     }
 
     CEFWRAPPER_API void getImageSize(int* width, int* height) {

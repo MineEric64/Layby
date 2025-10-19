@@ -64,6 +64,7 @@ extern "C" {
 
     CEFWRAPPER_API void resized();
     CEFWRAPPER_API void loadURL(const char* url);
+    CEFWRAPPER_API void getURL(char* url);
     CEFWRAPPER_API void timerCallback();
     CEFWRAPPER_API void setLocalBounds(int width_, int height_);
     CEFWRAPPER_API void setAudioParam(int sampleRate_, int samplesPerBlock_);
@@ -72,6 +73,8 @@ extern "C" {
     CEFWRAPPER_API void mouseDown(int x, int y, int isLeft, int isMiddle, int isRight, int clickCount);
     CEFWRAPPER_API void mouseUp(int x, int y, int isLeft, int isMiddle, int isRight, int clickCount);
     CEFWRAPPER_API int keyPressed(const char16_t key, int vk);
+    CEFWRAPPER_API void executeJS(const char* script);
+    CEFWRAPPER_API void showDevTools();
 
     CEFWRAPPER_API void getImageSize(int* width, int* height);
     CEFWRAPPER_API int getImage(void* p, int length);

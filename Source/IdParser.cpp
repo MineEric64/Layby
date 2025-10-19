@@ -72,6 +72,7 @@ void IdParser::buttonClicked(juce::Button* button) {
 
         if (id.length() > 0) {
             url += id;
+            url += juce::String("?enablejsapi=1"); //for YouTube Iframe API
 
             juce::String simply("https://youtu.be/");
             simply += id;
@@ -81,10 +82,12 @@ void IdParser::buttonClicked(juce::Button* button) {
         else { //it means it's not from youtube website. etc (ex: soundcloud, spotify ...)
             url = text;
 
-            //juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon, "Layby", "Please input the valid URL.");
-            //return;
+            if (url.isEmpty()) {
+                juce::AlertWindow::showMessageBoxAsync(juce::MessageBoxIconType::InfoIcon, "Layby", "Please input the valid URL.");
+                return;
+            }
         }
-        if (Player::cef.loadURL != NULL) Player::cef.loadURL(url.toRawUTF8());
+        Player::loadURL(url);
     }
     /*else if (button == &homeButton) {
         juce::String url("https://www.youtube.com");

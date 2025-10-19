@@ -38,6 +38,7 @@ bool CefLoader::init(const wchar_t* dirPath, const wchar_t* dllPath) {
     isInitialized = (IS_INITIALIZED)GetProcAddress(handle, "isInitialized");
     resized = (RESIZED)GetProcAddress(handle, "resized");
     loadURL = (LOAD_URL)GetProcAddress(handle, "loadURL");
+    getURL = (GET_URL)GetProcAddress(handle, "getURL");
     timerCallback = (TIMER_CALLBACK)GetProcAddress(handle, "timerCallback");
     setLocalBounds = (SET_LOCAL_BOUNDS)GetProcAddress(handle, "setLocalBounds");
     setAudioParam = (SET_AUDIO_PARAM)GetProcAddress(handle, "setAudioParam");
@@ -45,6 +46,8 @@ bool CefLoader::init(const wchar_t* dirPath, const wchar_t* dllPath) {
     mouseDown = (MOUSE_DOWN)GetProcAddress(handle, "mouseDown");
     mouseUp = (MOUSE_UP)GetProcAddress(handle, "mouseUp");
     keyPressed = (KEY_PRESSED)GetProcAddress(handle, "keyPressed");
+    executeJS = (EXECUTE_JS)GetProcAddress(handle, "executeJS");
+    showDevTools = (SHOW_DEV_TOOLS)GetProcAddress(handle, "showDevTools");
     getImageSize = (GET_IMAGE_SIZE)GetProcAddress(handle, "getImageSize");
     getImage = (GET_IMAGE)GetProcAddress(handle, "getImage");
     getAudioBuffer = (GET_AUDIO_BUFFER)GetProcAddress(handle, "getAudioBuffer");
@@ -61,6 +64,7 @@ void CefLoader::free() {
     isInitialized = NULL;
     resized = NULL;
     loadURL = NULL;
+    getURL = NULL;
     timerCallback = NULL;
     setLocalBounds = NULL;
     setAudioParam = NULL;
@@ -68,6 +72,8 @@ void CefLoader::free() {
     mouseDown = NULL;
     mouseUp = NULL;
     keyPressed = NULL;
+    executeJS = NULL;
+    showDevTools = NULL;
     getImageSize = NULL;
     getImage = NULL;
     getAudioBuffer = NULL;

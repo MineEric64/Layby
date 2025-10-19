@@ -29,6 +29,8 @@ public:
    #endif
 
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    bool wasPlaying;
+    int64_t previousTime;
 
     //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;

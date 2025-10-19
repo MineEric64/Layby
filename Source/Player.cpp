@@ -11,10 +11,12 @@
 #define WIDTH 800
 #define HEIGHT 540
 #include "Player.h"
+#include "IdParser.h"
+#include "TimeShop.h"
 
 CefLoader Player::cef;
 
-Player::Player() {
+Player::Player() : delayRemain(0) {
     setSize(WIDTH, HEIGHT);
     startTimer(16); //60fps
 
@@ -42,6 +44,41 @@ void Player::initializeCEF() {
 
     if (cef.setLocalBounds != NULL) cef.setLocalBounds(WIDTH, HEIGHT);
     if (cef.initializeCEF != NULL) cefInit = cef.initializeCEF(subwoofer.getFullPathName().toRawUTF8(), cache);
+
+    bypassed = false;
+
+    TimeShop::callAfterDelay(bypass, 1000);
+    TimeShop::callAfterDelay(bypass, 2000); //for safe
+}
+
+juce::String Player::getURL() {
+    if (cef.getURL != NULL) {
+        char url[255];
+        
+        cef.getURL(url);
+        return juce::String(url);
+    }
+}
+
+void Player::loadURL(const juce::String& url) {
+    if (Player::cef.loadURL != NULL) Player::cef.loadURL(url.toRawUTF8());
+    bypassed = false;
+
+    TimeShop::callAfterDelay(bypass, 500);
+    TimeShop::callAfterDelay(bypass, 1000); //for safe
+}
+
+//Middle Mouse Click Event (for autoplay, YouTube Iframe API)
+void Player::bypass() {
+    mouseDownInternal(WIDTH / 2, HEIGHT / 2, 0, 1, 0, 1);
+    juce::Thread::sleep(30);
+    mouseUpInternal(WIDTH / 2, HEIGHT / 2, 0, 1, 0, 1);
+    bypassed = true;
+}
+
+void Player::setupCallback(std::function<void()> f, int delay) {
+    callback = std::move(f);
+    delayRemain = delay;
 }
 
 void Player::paint(juce::Graphics& g)
@@ -80,6 +117,13 @@ void Player::timerCallback() {
             free(buffer);
         }
     }
+
+    //Callback
+    if (delayRemain > 0 && delayRemain <= 16 && callback) {
+        if (callback) callback();
+        delayRemain = 0;
+    }
+    else if (delayRemain > 16) delayRemain -= 16;
 }
 
 void Player::updateImage(const void* buffer, int width, int height) {
@@ -106,11 +150,19 @@ void Player::mouseMove(const juce::MouseEvent& event)
 }
 
 void Player::mouseDown(const juce::MouseEvent& event) {
-    if (cef.mouseDown != NULL) cef.mouseDown(event.position.x, event.position.y, event.mods.isLeftButtonDown(), event.mods.isMiddleButtonDown(), event.mods.isRightButtonDown(), event.getNumberOfClicks());
+    mouseDownInternal(event.position.x, event.position.y, event.mods.isLeftButtonDown(), event.mods.isMiddleButtonDown(), event.mods.isRightButtonDown(), event.getNumberOfClicks());
 }
 
 void Player::mouseUp(const juce::MouseEvent& event) {
-    if (cef.mouseUp != NULL) cef.mouseUp(event.position.x, event.position.y, event.mods.isLeftButtonDown(), event.mods.isMiddleButtonDown(), event.mods.isRightButtonDown(), event.getNumberOfClicks());
+    mouseUpInternal(event.position.x, event.position.y, event.mods.isLeftButtonDown(), event.mods.isMiddleButtonDown(), event.mods.isRightButtonDown(), event.getNumberOfClicks());
+}
+
+void Player::mouseDownInternal(int x, int y, int isLeft, int isMiddle, int isRight, int clickCount) {
+    if (cef.mouseDown != NULL) cef.mouseDown(x, y, isLeft, isMiddle, isRight, clickCount);
+}
+
+void Player::mouseUpInternal(int x, int y, int isLeft, int isMiddle, int isRight, int clickCount) {
+    if (cef.mouseUp != NULL) cef.mouseUp(x, y, isLeft, isMiddle, isRight, clickCount);
 }
 
 bool Player::keyPressed(const juce::KeyPress& key)
@@ -125,4 +177,26 @@ bool Player::keyPressed(const juce::KeyPress& key)
     // If return's value is false, allow other components to handle the event
     if (cef.keyPressed != NULL && ch2 != 0) result = cef.keyPressed(ch2, key.getKeyCode());
     return result;
+}
+
+void Player::playVideo() {
+    if (cef.executeJS != NULL) cef.executeJS("window.postMessage('{\"event\":\"command\",\"func\":\"playVideo\"}', 'https://www.youtube.com');");
+}
+
+void Player::pauseVideo() {
+    if (cef.executeJS != NULL) cef.executeJS("window.postMessage('{\"event\":\"command\",\"func\":\"pauseVideo\"}', 'https://www.youtube.com');");
+}
+
+void Player::stopVideo() {
+    if (cef.executeJS != NULL) cef.executeJS("window.postMessage('{\"event\":\"command\",\"func\":\"stopVideo\"}', 'https://www.youtube.com');");
+}
+
+void Player::seekTo(float time) {
+    if (cef.executeJS != NULL) {
+        juce::String script("window.postMessage('{\"event\":\"command\",\"func\":\"seekTo\", \"args\":[");
+       
+        script += juce::String(time);
+        script += juce::String(", true]}', 'https://www.youtube.com');");
+        cef.executeJS(script.toRawUTF8());
+    }
 }

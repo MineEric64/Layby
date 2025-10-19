@@ -8,6 +8,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "TimeShop.h"
 
 //==============================================================================
 TestAudioProcessor::TestAudioProcessor()
@@ -112,6 +113,9 @@ void TestAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 
         Player::cef.init(executableDirPath.toWideCharPointer(), dll.toWideCharPointer());
         Player::initializeCEF();
+
+        //Debug only
+        //if (Player::cef.showDevTools != NULL) Player::cef.showDevTools();
     }
 
     if (Player::cef.setAudioParam != NULL) Player::cef.setAudioParam((int)sampleRate, samplesPerBlock);
@@ -157,6 +161,33 @@ void TestAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
 
     //Clear the buffer
     buffer.clear();
+
+    if (getPlayHead() != nullptr)
+    {
+        auto info = getPlayHead()->getPosition();
+        
+        if (info->getIsPlaying())
+        {
+            if (!wasPlaying) Player::playVideo();
+
+            //seeking
+            auto time = info->getTimeInSamples();
+            int changed = buffer.getNumSamples() * 3;
+
+            if (abs((*time) - previousTime) >= changed) {
+                auto time2 = info->getTimeInSeconds();
+                float time3 = (float)(*time2);
+
+                Player::seekTo(time3);
+            }
+            previousTime = *time;
+        }
+        else
+        {
+            if (wasPlaying) Player::pauseVideo();
+        }
+        wasPlaying = info->getIsPlaying();
+    }
 
     //Get audio buffer
     float** buffer2 = (float**)malloc(sizeof(float*) * channels);
