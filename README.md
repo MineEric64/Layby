@@ -36,6 +36,8 @@ Including VST3 with installer
 
 I tried to use WebView2 instead of CEF, but it failed. IDK why error happens. Just I have no idea.
 
+(You can see the WebView2 version source code on [release v1.0.2](https://github.com/MineEric64/Layby/releases/tag/v1.0.2))
+
 Using CEF Static Loading crashes DAW. IDK why too. So I had to change Dynamic Loading (at Runtime) using `LoadLibrary()` function.
 
 If you want to port CEF to WebView2 because it's simple and lightweight (or you want to contribute because you just came with AMAZING idea), you're welcome!! (PR)
