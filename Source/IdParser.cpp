@@ -141,6 +141,14 @@ juce::String IdParser::parseVideoId(juce::String url, bool& isHome) {
                 return url;
             }
         }
+        else if (url.startsWithIgnoreCase("/live/")) {
+            url = url.substring(6);
+
+            if (url.length() >= 11) {
+                url = url.substring(0, 11);
+                return url;
+            }
+        }
         else if (url == "/" || url.length() == 0 || url == "/watch" || url == "/v" || url == "/v/") isHome = 1; //it's just youtube main homepage
     }
     else if (url.startsWithIgnoreCase("youtu.be")) {

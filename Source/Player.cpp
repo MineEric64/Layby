@@ -180,6 +180,7 @@ bool Player::keyPressed(const juce::KeyPress& key)
 }
 
 void Player::playVideo() {
+    //window.postMessage('{"event":"command","func":"playVideo"}', 'https://www.youtube.com');
     if (cef.executeJS != NULL) cef.executeJS("window.postMessage('{\"event\":\"command\",\"func\":\"playVideo\"}', 'https://www.youtube.com');");
 }
 
@@ -192,6 +193,7 @@ void Player::stopVideo() {
 }
 
 void Player::seekTo(float time) {
+    //window.postMessage('{"event":"command","func":"seekTo", "args":[90, true]}', 'https://www.youtube.com');
     if (cef.executeJS != NULL) {
         juce::String script("window.postMessage('{\"event\":\"command\",\"func\":\"seekTo\", \"args\":[");
        
