@@ -69,6 +69,7 @@ void IdParser::buttonClicked(juce::Button* button) {
         juce::String text = textEditor.getText();
         juce::String id = parseVideoId(text, isHome);
         juce::String url("https://www.youtube.com/embed/");
+        //change to youtube-nookie.com if error 153 (Video configuration error) happens, but this is not a solution.
 
         if (id.length() > 0) {
             url += id;
