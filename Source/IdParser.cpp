@@ -69,7 +69,10 @@ void IdParser::buttonClicked(juce::Button* button) {
         juce::String text = textEditor.getText();
         juce::String id = parseVideoId(text, isHome);
         juce::String url("https://www.youtube.com/embed/");
-        //change to youtube-nookie.com if error 153 (Video configuration error) happens, but this is not a solution.
+
+        //Error 153 (Video configuration error) solution:
+        // 1. Disable '?enablejsapi=1'
+        // 2. change domain name to youtube-nocookie.com
 
         if (id.length() > 0) {
             url += id;

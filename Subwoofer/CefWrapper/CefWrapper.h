@@ -36,11 +36,23 @@ private:
     IMPLEMENT_REFCOUNTING(PlayerHandler);
 };
 
-class PlayerBrowserClient : public CefClient {
+class PlayerBrowserClient : public CefClient, CefRequestHandler {
 public:
     PlayerBrowserClient(CefRefPtr<PlayerHandler> handler_) : handler(handler_) {}
     virtual CefRefPtr<CefRenderHandler> GetRenderHandler() override { return handler; }
     virtual CefRefPtr<CefAudioHandler> GetAudioHandler() { return handler; }
+
+    virtual CefRefPtr<CefRequestHandler> GetRequestHandler() override { return this; }
+    virtual bool OnBeforeResourceLoad(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefRequest> request) {
+        CefRequest::HeaderMap hdrMap;
+
+        request->GetHeaderMap(hdrMap);
+        if (hdrMap.find("Referrer-Policy") != hdrMap.end()) hdrMap.erase("Referrer-Policy");
+        hdrMap.insert(std::make_pair("Referrer-Policy", "strict-origin-when-cross-origin"));
+        request->SetHeaderMap(hdrMap);
+
+        return false;
+    }
 
 private:
     CefRefPtr<PlayerHandler> handler;
