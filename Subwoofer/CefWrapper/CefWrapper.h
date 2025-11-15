@@ -47,8 +47,8 @@ public:
         CefRequest::HeaderMap hdrMap;
 
         request->GetHeaderMap(hdrMap);
-        if (hdrMap.find("Referrer-Policy") != hdrMap.end()) hdrMap.erase("Referrer-Policy");
         hdrMap.insert(std::make_pair("Referrer-Policy", "strict-origin-when-cross-origin"));
+        hdrMap.insert(std::make_pair("Referer", "https://www.youtube.com"));
         request->SetHeaderMap(hdrMap);
 
         return false;
